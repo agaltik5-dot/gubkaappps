@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">My Application</string>
+    <string name="schedule_title">Расписание</string>
+    <string name="group_info">ИВТ-21 · 2 курс</string>
+    <string name="lessons_count">%1$d занятия</string>
+    <string name="break_time">перерыв %1$d ч</string>
+    <string name="nav_schedule">Расписание</string>
+    <string name="nav_today">Сегодня</string>
+    <string name="nav_search">Поиск</string>
+    <string name="nav_profile">Профиль</string>
+    <string name="_08_00">08:00</string>
 </resources>

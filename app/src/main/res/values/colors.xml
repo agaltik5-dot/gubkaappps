@@ -2,4 +2,32 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Platform Agnostic Vibrant Palette -->
+    <color name="ui_primary">#5B6CF9</color>
+    <color name="ui_primary_dark">#4151D8</color>
+    <color name="ui_accent">#FF7EB3</color>
+
+    <!-- Neutral Backgrounds -->
+    <color name="ui_bg">#F8F9FB</color>
+    <color name="ui_surface">#FFFFFF</color>
+    <color name="ui_text_main">#1E2022</color>
+    <color name="ui_text_sub">#77838F</color>
+
+    <!-- Soft Gradients for Categories -->
+    <color name="grad_blue_start">#667EEA</color>
+    <color name="grad_blue_end">#764BA2</color>
+
+    <color name="grad_green_start">#0BA360</color>
+    <color name="grad_green_end">#3CBA92</color>
+
+    <color name="grad_orange_start">#F6D365</color>
+    <color name="grad_orange_end">#FDA085</color>
+
+    <color name="grad_purple_start">#A18CD1</color>
+    <color name="grad_purple_end">#FBC2EB</color>
+
+    <!-- Shadows and Overlays -->
+    <color name="ui_shadow">#1A000000</color>
+    <color name="ui_divider">#EDF2F7</color>
 </resources>

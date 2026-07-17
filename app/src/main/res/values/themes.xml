@@ -1,8 +1,19 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.MyApplication" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Brand colors -->
+        <item name="colorPrimary">@color/ui_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- UI colors -->
+        <item name="android:windowBackground">@color/ui_bg</item>
+        <item name="colorSurface">@color/ui_surface</item>
+        <item name="colorOnSurface">@color/ui_text_main</item>
+        <item name="colorOnSurfaceVariant">@color/ui_text_sub</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/ui_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.MyApplication" parent="Base.Theme.MyApplication" />
