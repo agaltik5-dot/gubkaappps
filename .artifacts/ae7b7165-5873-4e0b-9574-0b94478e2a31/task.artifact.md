@@ -1,0 +1,4 @@
+- [ ] Create `Lesson.kt` data class
+- [ ] Create `LessonAdapter.kt`
+- [ ] Initialize `RecyclerView` in `MainActivity.kt` with sample data
+- [ ] Final verification

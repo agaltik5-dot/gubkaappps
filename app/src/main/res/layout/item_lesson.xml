@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    android:background="@drawable/bg_card_floating"
+    android:elevation="4dp"
+    android:orientation="horizontal"
+    android:padding="30dp">
+
+    <!-- Time and Indicator 1221122112122121-->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_start_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_08_00"
+            android:textColor="@color/ui_text_main"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <!-- Floating Gradient Indicator -->
+        <View
+            android:id="@+id/v_indicator"
+            android:layout_width="4dp"
+            android:layout_height="32dp"
+            android:layout_marginVertical="8dp"
+            android:background="@drawable/bg_day_active" />
+
+        <TextView
+            android:id="@+id/tv_end_time"
+            android:layout_width="36dp"
+            android:layout_height="22dp"
+            android:text="09:30"
+            android:textColor="@color/ui_text_sub"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@color/ui_divider"
+            android:paddingHorizontal="4dp"
+            android:paddingVertical="1dp"
+            android:text="2ч"
+            android:textColor="@color/ui_text_sub"
+            android:textSize="9sp" />
+    </LinearLayout>
+
+    <!-- Content -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Высшая математика"
+            android:textColor="@color/ui_text_main"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Лекция"
+            android:textColor="@color/ui_primary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@android:drawable/ic_menu_myplaces"
+                app:tint="@color/ui_text_sub" />
+
+            <TextView
+                android:id="@+id/tv_details"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="А-201 · Соколов А.В."
+                android:textColor="@color/ui_text_sub"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Action Icon (e.g., arrow) -->
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center"
+        android:src="@android:drawable/ic_media_next"
+        app:tint="@color/ui_divider" />
+
+</LinearLayout>
