@@ -29,7 +29,7 @@
         <View
             android:id="@+id/v_indicator"
             android:layout_width="4dp"
-            android:layout_height="32dp"
+            android:layout_height="28dp"
             android:layout_marginVertical="8dp"
             android:background="@drawable/bg_day_active" />
 
@@ -66,7 +66,7 @@
             android:id="@+id/tv_subject"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Высшая математика"
+            android:text="Я люблю Евдокимова и ДИДЕНКО"
             android:textColor="@color/ui_text_main"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -91,7 +91,7 @@
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
-                android:src="@android:drawable/ic_menu_myplaces"
+                android:src="@drawable/ic_lesson_teacher"
                 app:tint="@color/ui_text_sub" />
 
             <TextView
@@ -104,13 +104,5 @@
                 android:textSize="13sp" />
         </LinearLayout>
     </LinearLayout>
-
-    <!-- Action Icon (e.g., arrow) -->
-    <ImageView
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_gravity="center"
-        android:src="@android:drawable/ic_media_next"
-        app:tint="@color/ui_divider" />
 
 </LinearLayout>

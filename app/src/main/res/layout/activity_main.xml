@@ -262,7 +262,7 @@
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
-                android:src="@android:drawable/ic_menu_today"
+                android:src="@drawable/ic_month_calandar"
                 app:tint="@color/ui_primary" />
 
             <ImageView
@@ -272,7 +272,7 @@
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
-                android:src="@android:drawable/ic_menu_search"
+                android:src="@drawable/ic_formenu_search"
                 app:tint="@color/ui_text_sub" />
 
             <ImageView
@@ -282,7 +282,7 @@
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
-                android:src="@android:drawable/ic_menu_myplaces"
+                android:src="@drawable/ic_menu_account"
                 app:tint="@color/ui_text_sub" />
 
         </LinearLayout>
