@@ -27,6 +27,12 @@ android {
             }
         }
     }
+
+    buildFeatures {
+        viewBinding = true
+        compose = false // у вас уже включен Compose
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

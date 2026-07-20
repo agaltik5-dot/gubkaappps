@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ui_bg">
+
+    <!-- 1. Заголовок (Расписание / Дата) -->
+    <LinearLayout
+        android:id="@+id/layout_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="24dp"
+        android:paddingBottom="16dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:text="Расписание"
+            android:textColor="@color/ui_text_main"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Четверг, 16 Июля"
+            android:textColor="@color/ui_text_sub"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- 2. Горизонтальный список дней недели (Квадратики) -->
+    <HorizontalScrollView
+        android:id="@+id/scroll_days"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/layout_header">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="8dp">
+
+            <!-- Понедельник -->
+            <LinearLayout
+                android:id="@+id/day_mon"
+                android:layout_width="54dp"
+                android:layout_height="64dp"
+                android:layout_marginEnd="8dp"
+                android:background="@color/ui_surface"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ПН"
+                    android:textColor="@color/ui_text_sub"
+                    android:textSize="12sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="13"
+                    android:textColor="@color/ui_text_main"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Вторник (Выбран по умолчанию) -->
+            <LinearLayout
+                android:id="@+id/day_tue"
+                android:layout_width="54dp"
+                android:layout_height="64dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_day_active"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ВТ"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="14"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Среда -->
+            <LinearLayout
+                android:id="@+id/day_wed"
+                android:layout_width="54dp"
+                android:layout_height="64dp"
+                android:layout_marginEnd="8dp"
+                android:background="@color/ui_surface"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="СР"
+                    android:textColor="@color/ui_text_sub"
+                    android:textSize="12sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="15"
+                    android:textColor="@color/ui_text_main"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Четверг -->
+            <LinearLayout
+                android:id="@+id/day_thu"
+                android:layout_width="54dp"
+                android:layout_height="64dp"
+                android:layout_marginEnd="8dp"
+                android:background="@color/ui_surface"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ЧТ"
+                    android:textColor="@color/ui_text_sub"
+                    android:textSize="12sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="16"
+                    android:textColor="@color/ui_text_main"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Пятница -->
+            <LinearLayout
+                android:id="@+id/day_fri"
+                android:layout_width="54dp"
+                android:layout_height="64dp"
+                android:layout_marginEnd="8dp"
+                android:background="@color/ui_surface"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ПТ"
+                    android:textColor="@color/ui_text_sub"
+                    android:textSize="12sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="17"
+                    android:textColor="@color/ui_text_main"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Суббота -->
+            <LinearLayout
+                android:id="@+id/day_sat"
+                android:layout_width="54dp"
+                android:layout_height="64dp"
+                android:background="@color/ui_surface"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="СБ"
+                    android:textColor="@color/ui_text_sub"
+                    android:textSize="12sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="18"
+                    android:textColor="@color/ui_text_main"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- 3. Список уроков (RecyclerView) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_schedule"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scroll_days"
+        tools:listitem="@layout/item_lesson" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

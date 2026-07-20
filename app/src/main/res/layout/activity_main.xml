@@ -1,243 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/ui_bg"
-    tools:context=".MainActivity">
+    tools:context=".ui.MainActivity">
 
-    <!-- Header Section (iOS-like centered title) -->
-    <LinearLayout
-        android:id="@+id/layout_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingTop="24dp"
-        android:paddingBottom="16dp"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Расписание"
-            android:textColor="@color/ui_text_main"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-black" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="Четверг, 16 Июля"
-            android:textColor="@color/ui_text_sub"
-            android:textSize="14sp" />
-    </LinearLayout>
-
-    <!-- Custom Day Selector -->
-    <HorizontalScrollView
-        android:id="@+id/scroll_days"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:clipToPadding="false"
-        android:paddingHorizontal="16dp"
-        android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@+id/layout_header"
-        tools:layout_editor_absoluteX="206dp">
-        <!-- Тут короче меняются размеры кнопок я поменял на более меньше
-         и убрал воскресенье пока-->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingVertical="8dp">
-
-            <LinearLayout
-                android:id="@+id/day_mon"
-                android:layout_width="50dp"
-                android:layout_height="65dp"
-                android:layout_marginEnd="12dp"
-                android:background="@color/ui_surface"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Пн"
-                    android:textColor="@color/ui_text_sub"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="13"
-                    android:textColor="@color/ui_text_main"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/day_tue"
-                android:layout_width="50dp"
-                android:layout_height="65dp"
-                android:layout_marginEnd="12dp"
-                android:background="@drawable/bg_day_active"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Вт"
-                    android:textColor="@color/white"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="14"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/day_wed"
-                android:layout_width="50dp"
-                android:layout_height="65dp"
-                android:layout_marginEnd="12dp"
-                android:background="@color/ui_surface"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ср"
-                    android:textColor="@color/ui_text_sub"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="15"
-                    android:textColor="@color/ui_text_main"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/day_thu"
-                android:layout_width="50dp"
-                android:layout_height="65dp"
-                android:layout_marginEnd="12dp"
-                android:background="@color/ui_surface"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Чт"
-                    android:textColor="@color/ui_text_sub"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="16"
-                    android:textColor="@color/ui_text_main"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/day_fri"
-                android:layout_width="50dp"
-                android:layout_height="65dp"
-                android:layout_marginEnd="12dp"
-                android:background="@color/ui_surface"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Пт"
-                    android:textColor="@color/ui_text_sub"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="17"
-                    android:textColor="@color/ui_text_main"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/day_sat"
-                android:layout_width="50dp"
-                android:layout_height="65dp"
-                android:layout_marginEnd="12dp"
-                android:background="@color/ui_surface"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Сб"
-                    android:textColor="@color/ui_text_sub"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="18"
-                    android:textColor="@color/ui_text_main"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-
-        </LinearLayout>
-    </HorizontalScrollView>
-
-    <!-- Schedule List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_schedule"
-        android:layout_width="match_parent"
+    <!-- 1. КОНТЕЙНЕР ДЛЯ ФРАГМЕНТОВ -->
+    <!-- Сюда подставляются ScheduleFragment или ProfileFragment -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment_container"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:clipToPadding="false"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="100dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/scroll_days"
-        tools:listitem="@layout/item_lesson" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-
-    <!-- Floating Bottom Navigation -->
+    <!-- 2. НИЖНЯЯ ПАРЯЩАЯ ПАНЕЛЬ С КНОПКАМИ -->
     <androidx.cardview.widget.CardView
         android:id="@+id/card_nav"
         android:layout_width="match_parent"
@@ -255,6 +38,7 @@
             android:gravity="center"
             android:orientation="horizontal">
 
+            <!-- Кнопка "Календарь/Расписание" -->
             <ImageView
                 android:id="@+id/nav_today"
                 android:layout_width="0dp"
@@ -265,6 +49,7 @@
                 android:src="@drawable/ic_month_calandar"
                 app:tint="@color/ui_primary" />
 
+            <!-- Кнопка "Поиск" -->
             <ImageView
                 android:id="@+id/nav_search"
                 android:layout_width="0dp"
@@ -275,6 +60,7 @@
                 android:src="@drawable/ic_formenu_search"
                 app:tint="@color/ui_text_sub" />
 
+            <!-- Кнопка "Профиль" -->
             <ImageView
                 android:id="@+id/nav_profile"
                 android:layout_width="0dp"
