@@ -128,7 +128,7 @@
             android:layout_height="64dp"
             android:layout_marginHorizontal="2dp"
             android:layout_weight="1"
-            android:background="@drawable/bg_day_active"
+            android:background="@drawable/bg_day_inactive"
             android:gravity="center"
             android:orientation="vertical"
             android:elevation="4dp">
@@ -136,14 +136,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ВТ"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/ui_text_sub"
                 android:textSize="10sp"
                 android:textStyle="bold" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="14"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/ui_text_main"
                 android:textSize="15sp"
                 android:textStyle="bold" />
         </LinearLayout>
