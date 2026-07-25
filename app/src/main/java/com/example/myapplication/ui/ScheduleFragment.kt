@@ -20,78 +20,121 @@ import com.example.myapplication.LessonAdapter
 
 class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
 
+    // Ссылка на ViewPager2
+    private var viewPager: androidx.viewpager2.widget.ViewPager2? = null
+    
     // Ссылка на выбранный элемент дня
     private var selectedDayView: View? = null
+    private var dayViews: List<LinearLayout?> = emptyList()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // Инициализация компонентов
-        setupScheduleList(view)
+        setupMonthNavigation(view)
         setupDaySelector(view)
+        setupViewPager(view)
     }
 
-    private fun setupScheduleList(view: View) {
-        val recyclerView = view.findViewById<RecyclerView>(R.id.rv_schedule)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+    private fun setupMonthNavigation(view: View) {
+        val tvMonthYear = view.findViewById<TextView>(R.id.tv_month_year)
+        val btnPrev = view.findViewById<View>(R.id.btn_prev_week)
+        val btnNext = view.findViewById<View>(R.id.btn_next_week)
 
-        // Тестовый список занятий
-        val sampleLessons = listOf(
+        tvMonthYear.text = "Июль 2026"
+
+        btnPrev.setOnClickListener {
+            // Логика переключения на предыдущую неделю
+        }
+
+        btnNext.setOnClickListener {
+            // Логика переключения на следующую неделю
+        }
+    }
+
+    private fun setupViewPager(view: View) {
+        viewPager = view.findViewById(R.id.vp_schedule)
+        
+        // Подготовка данных для всей недели (7 списков)
+        val weeklyData = listOf(
+            createSampleLessons("ПН"),
+            createSampleLessons("ВТ"),
+            createSampleLessons("СР"),
+            createSampleLessons("ЧТ"),
+            createSampleLessons("ПТ"),
+            createSampleLessons("СБ"),
+            createSampleLessons("ВС")
+        )
+
+        val adapter = DailyScheduleAdapter(weeklyData)
+        viewPager?.adapter = adapter
+
+        // Синхронизация: свайп ViewPager -> выбор кнопки наверху
+        viewPager?.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                dayViews[position]?.let { selectDayVisuals(it) }
+            }
+        })
+
+        // По умолчанию переходим на Вторник (индекс 1)
+        viewPager?.setCurrentItem(1, false)
+    }
+
+    private fun createSampleLessons(dayName: String): List<Lesson> {
+        return listOf(
             Lesson(
-                subject = "Люблю ДИДИЕНКО",
+                subject = "Предмет в $dayName",
                 startTime = "08:00",
                 endTime = "09:30",
                 type = "Лекция",
-                details = "А-201 · Соколов А.В.",
-                duration = "24"
+                details = "А-201 · Преподаватель",
+                duration = "1.5ч"
             ),
             Lesson(
-                subject = "Роман вы ЛЕОНИЛИ ПЕПСИ",
+                subject = "Еще пара ($dayName)",
                 startTime = "10:00",
                 endTime = "11:30",
-                type = "Лабораторная",
-                details = "В-305 · Иванов К.Е.",
-                duration = "24"
+                type = "Практика",
+                details = "Б-305 · Соколов А.В.",
+                duration = "1.5ч"
             )
         )
-
-        val adapter = LessonAdapter(sampleLessons)
-        recyclerView.adapter = adapter
     }
 
     private fun setupDaySelector(view: View) {
-        // Указываем R.id.название для каждого элемента
-        val days: List<LinearLayout?> = listOf(
+        dayViews = listOf(
             view.findViewById(R.id.day_mon),
             view.findViewById(R.id.day_tue),
             view.findViewById(R.id.day_wed),
             view.findViewById(R.id.day_thu),
             view.findViewById(R.id.day_fri),
-            view.findViewById(R.id.day_sat)
+            view.findViewById(R.id.day_sat),
+            view.findViewById(R.id.day_sun)
         )
 
-        // По умолчанию выбираем вторник
-        val defaultDay = view.findViewById<LinearLayout>(R.id.day_tue)
-        selectedDayView = defaultDay
-
         // Назначаем обработчик нажатий
-        days.forEach { dayView ->
+        dayViews.forEachIndexed { index, dayView ->
             dayView?.setOnClickListener {
-                selectDay(it)
+                // При клике на кнопку — листаем ViewPager к нужному дню
+                viewPager?.currentItem = index
             }
         }
     }
 
-    private fun selectDay(view: View) {
+    /**
+     * Только визуальное обновление кнопок дней
+     */
+    private fun selectDayVisuals(view: View) {
         val context = requireContext()
 
         // Снимаем выделение с предыдущего дня
         selectedDayView?.let { prev ->
-            prev.setBackgroundResource(R.color.ui_surface)
+            prev.setBackgroundResource(R.drawable.bg_day_inactive)
             val dayText = (prev as LinearLayout).getChildAt(0) as TextView
             val numText = prev.getChildAt(1) as TextView
             dayText.setTextColor(ContextCompat.getColor(context, R.color.ui_text_sub))
             numText.setTextColor(ContextCompat.getColor(context, R.color.ui_text_main))
+            prev.elevation = 0f
         }
 
         // Выделяем новый день
@@ -100,9 +143,16 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         val numText = view.getChildAt(1) as TextView
         dayText.setTextColor(Color.WHITE)
         numText.setTextColor(Color.WHITE)
+        view.elevation = 8f
 
         selectedDayView = view
+    }
 
-        Toast.makeText(context, "Выбран день: ${dayText.text}", Toast.LENGTH_SHORT).show()
+    private fun selectDay(view: View) {
+        // Этот метод теперь вызывается косвенно через ViewPager или клик
+        val index = dayViews.indexOf(view as LinearLayout)
+        if (index != -1) {
+            viewPager?.currentItem = index
+        }
     }
 }
