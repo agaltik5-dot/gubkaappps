@@ -52,17 +52,33 @@
                     app:shapeAppearanceOverlay="@style/CircularImageView"
                     app:tint="@color/white" />
 
-                <!-- ФИО Студента -->
-                <TextView
-                    android:id="@+id/tv_profile_name"
+                <!-- ФИО / Ник Студента с иконкой редактирования -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:fontFamily="sans-serif-bold"
-                    android:text="Иван Иванов"
-                    android:textColor="@color/ui_text_main"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_profile_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-bold"
+                        android:text="Евгений Агальцов"
+                        android:textColor="@color/ui_text_main"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/btn_edit_name"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="8dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/ic_menu_edit"
+                        app:tint="@color/ui_primary" />
+                </LinearLayout>
 
                 <!-- Детали (Факультет и группа) -->
                 <TextView
@@ -122,6 +138,84 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
+                <!-- Блок выбора акцентного цвета -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Цветовая схема"
+                        android:textColor="@color/ui_text_main"
+                        android:textSize="15sp" />
+
+                    <!-- Горизонтальная лента с 6 кружками -->
+                    <LinearLayout
+                        android:id="@+id/color_palette_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/color_blue"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginHorizontal="6dp"
+                            android:background="@color/accent_blue"
+                            app:shapeAppearanceOverlay="@style/CircularImageView" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/color_green"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginHorizontal="6dp"
+                            android:background="@color/accent_green"
+                            app:shapeAppearanceOverlay="@style/CircularImageView" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/color_purple"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginHorizontal="6dp"
+                            android:background="@color/accent_purple"
+                            app:shapeAppearanceOverlay="@style/CircularImageView" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/color_red"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginHorizontal="6dp"
+                            android:background="@color/accent_red"
+                            app:shapeAppearanceOverlay="@style/CircularImageView" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/color_orange"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginHorizontal="6dp"
+                            android:background="@color/accent_orange"
+                            app:shapeAppearanceOverlay="@style/CircularImageView" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/color_teal"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginHorizontal="6dp"
+                            android:background="@color/accent_teal"
+                            app:shapeAppearanceOverlay="@style/CircularImageView" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/ui_divider" />
 
                 <View
                     android:layout_width="match_parent"
@@ -187,6 +281,26 @@
                     android:paddingHorizontal="12dp"
                     android:text="Сменить основную группу"
                     android:textColor="@color/ui_primary"
+                    android:textSize="15sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/ui_divider" />
+
+                <!--КНОПКА: Сброс настроек -->
+                <TextView
+                    android:id="@+id/btn_reset_settings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:minHeight="48dp"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp"
+                    android:text="Сбросить настройки и кэш"
+                    android:textColor="#E11D48"
                     android:textSize="15sp" />
 
                 <View

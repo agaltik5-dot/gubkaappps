@@ -8,12 +8,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-
 import com.example.myapplication.ui.ProfileFragment
 import com.example.myapplication.ui.ScheduleFragment
 import com.example.myapplication.ui.SearchFragment
 
 class MainActivity : AppCompatActivity() {
+
+    // Переменная для отслеживания текущей выбранной иконки (по умолчанию 0 = Расписание)
+    private var selectedTabIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,38 +29,57 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // При первом запуске показываем расписание
-        if (savedInstanceState == null) {
-            replaceFragment(ScheduleFragment())
+        // Восстанавливаем индекс выбранной вкладки при пересоздании (например, при смене темы)
+        if (savedInstanceState != null) {
+            selectedTabIndex = savedInstanceState.getInt("KEY_SELECTED_TAB", 0)
         }
 
-        // ВЫЗЫВАЕМ настройку нижнего меню
+        // Инициализируем нижнее меню
         setupBottomNav()
+
+        // Показываем фрагмент и подсвечиваем иконку согласно selectedTabIndex
+        if (savedInstanceState == null) {
+            openTab(0)
+        } else {
+            // Если Activity пересоздалась, обновляем подсветку иконки под текущий фрагмент
+            updateNavTintByIndex(selectedTabIndex)
+        }
     }
 
-    // Функция должна находиться ВНЕ onCreate!
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Сохраняем номер выбранной вкладки перед пересозданием
+        outState.putInt("KEY_SELECTED_TAB", selectedTabIndex)
+    }
+
     private fun setupBottomNav() {
         val navToday = findViewById<ImageView>(R.id.nav_today)
         val navSearch = findViewById<ImageView>(R.id.nav_search)
         val navProfile = findViewById<ImageView>(R.id.nav_profile)
 
-        // 1. Кнопка "Расписание" (Сегодня)
         navToday.setOnClickListener {
-            replaceFragment(ScheduleFragment())
-            updateNavTint(selectedIcon = it as ImageView)
+            openTab(0)
         }
 
-        // 2. Кнопка "Поиск"
         navSearch.setOnClickListener {
-            replaceFragment(SearchFragment())
-            updateNavTint(selectedIcon = it as ImageView)
+            openTab(1)
         }
 
-        // 3. Кнопка "Профиль"
         navProfile.setOnClickListener {
-            replaceFragment(ProfileFragment())
-            updateNavTint(selectedIcon = it as ImageView)
+            openTab(2)
         }
+    }
+
+    private fun openTab(index: Int) {
+        selectedTabIndex = index
+        val fragment: Fragment = when (index) {
+            0 -> ScheduleFragment()
+            1 -> SearchFragment()
+            2 -> ProfileFragment()
+            else -> ScheduleFragment()
+        }
+        replaceFragment(fragment)
+        updateNavTintByIndex(index)
     }
 
     private fun replaceFragment(fragment: Fragment) {
@@ -67,15 +88,19 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
-    private fun updateNavTint(selectedIcon: ImageView) {
-        val navIcons = listOf(
-            findViewById<ImageView>(R.id.nav_today),
-            findViewById<ImageView>(R.id.nav_search),
-            findViewById<ImageView>(R.id.nav_profile)
-        )
+    private fun updateNavTintByIndex(index: Int) {
+        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        // Достаем актуальный акцентный цвет
+        val accentColorRes = prefs.getInt("key_accent_color", R.color.accent_blue)
 
-        navIcons.forEach { icon ->
-            val color = if (icon == selectedIcon) R.color.ui_primary else R.color.ui_text_sub
+        val navToday = findViewById<ImageView>(R.id.nav_today)
+        val navSearch = findViewById<ImageView>(R.id.nav_search)
+        val navProfile = findViewById<ImageView>(R.id.nav_profile)
+
+        val navIcons = listOf(navToday, navSearch, navProfile)
+
+        navIcons.forEachIndexed { i, icon ->
+            val color = if (i == index) accentColorRes else R.color.ui_text_sub
             icon.setColorFilter(ContextCompat.getColor(this, color))
         }
     }

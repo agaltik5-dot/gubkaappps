@@ -14,4 +14,12 @@
     <!-- Недостающие цвета -->
     <color name="ui_primary_dark">#00487D</color>
     <color name="ui_divider">#E0E0E0</color>
+
+    <!-- Палитра акцентных цветов -->
+    <color name="accent_blue">#0061A4</color>
+    <color name="accent_green">#00875A</color>
+    <color name="accent_purple">#7C3AED</color>
+    <color name="accent_red">#E11D48</color>
+    <color name="accent_orange">#D97706</color>
+    <color name="accent_teal">#0891B2</color>
 </resources>
