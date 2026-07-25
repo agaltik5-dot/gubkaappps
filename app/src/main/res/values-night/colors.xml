@@ -14,4 +14,7 @@
     <!-- Недостающие цвета -->
     <color name="ui_primary_dark">#003865</color>
     <color name="ui_divider">#2C2C2C</color>
+
+    <!-- Цвет для ползунка меню (тёмная тема) -->
+    <color name="ui_slider_bg">#334D9FFF</color>
 </resources>

@@ -12,15 +12,21 @@ import com.example.myapplication.ui.ProfileFragment
 import com.example.myapplication.ui.ScheduleFragment
 import com.example.myapplication.ui.SearchFragment
 
+import android.view.HapticFeedbackConstants
+import android.view.View
+
 class MainActivity : AppCompatActivity() {
 
     // Переменная для отслеживания текущей выбранной иконки (по умолчанию 0 = Расписание)
     private var selectedTabIndex = 0
+    private lateinit var navSlider: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+        navSlider = findViewById(R.id.nav_slider)
 
         // Настройка отступов для системных баров
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -39,10 +45,10 @@ class MainActivity : AppCompatActivity() {
 
         // Показываем фрагмент и подсвечиваем иконку согласно selectedTabIndex
         if (savedInstanceState == null) {
-            openTab(0)
+            openTab(0, animate = false)
         } else {
             // Если Activity пересоздалась, обновляем подсветку иконки под текущий фрагмент
-            updateNavTintByIndex(selectedTabIndex)
+            updateNavTintByIndex(selectedTabIndex, animate = false)
         }
     }
 
@@ -70,7 +76,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun openTab(index: Int) {
+    private fun openTab(index: Int, animate: Boolean = true) {
+        if (selectedTabIndex == index && animate) return // Не дергаем, если уже тут
+
+        // Добавляем вибрацию
+        val currentIcon = when(index) {
+            0 -> findViewById<View>(R.id.nav_today)
+            1 -> findViewById<View>(R.id.nav_search)
+            else -> findViewById<View>(R.id.nav_profile)
+        }
+        currentIcon.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+
+        val oldIndex = selectedTabIndex
         selectedTabIndex = index
         val fragment: Fragment = when (index) {
             0 -> ScheduleFragment()
@@ -78,17 +95,30 @@ class MainActivity : AppCompatActivity() {
             2 -> ProfileFragment()
             else -> ScheduleFragment()
         }
-        replaceFragment(fragment)
-        updateNavTintByIndex(index)
+
+        if (animate) {
+            if (index > oldIndex) {
+                replaceFragment(fragment, R.anim.slide_in_right, R.anim.slide_out_left)
+            } else {
+                replaceFragment(fragment, R.anim.slide_in_left, R.anim.slide_out_right)
+            }
+        } else {
+            replaceFragment(fragment)
+        }
+        
+        updateNavTintByIndex(index, animate)
     }
 
-    private fun replaceFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
+    private fun replaceFragment(fragment: Fragment, enterAnim: Int = 0, exitAnim: Int = 0) {
+        val transaction = supportFragmentManager.beginTransaction()
+        if (enterAnim != 0 && exitAnim != 0) {
+            transaction.setCustomAnimations(enterAnim, exitAnim)
+        }
+        transaction.replace(R.id.fragment_container, fragment)
             .commit()
     }
 
-    private fun updateNavTintByIndex(index: Int) {
+    private fun updateNavTintByIndex(index: Int, animate: Boolean = true) {
         val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
         // Достаем актуальный акцентный цвет
         val accentColorRes = prefs.getInt("key_accent_color", R.color.accent_blue)
@@ -102,6 +132,29 @@ class MainActivity : AppCompatActivity() {
         navIcons.forEachIndexed { i, icon ->
             val color = if (i == index) accentColorRes else R.color.ui_text_sub
             icon.setColorFilter(ContextCompat.getColor(this, color))
+        }
+
+        // Анимация ползунка
+        navSlider.post {
+            val totalWidth = (navSlider.parent as View).width - (navSlider.parent as View).paddingLeft - (navSlider.parent as View).paddingRight
+            val tabWidth = totalWidth / 3f
+            
+            // Устанавливаем ширину ползунка (1/3 от меню)
+            val params = navSlider.layoutParams
+            params.width = tabWidth.toInt()
+            navSlider.layoutParams = params
+
+            val targetX = index * tabWidth
+            
+            if (animate) {
+                navSlider.animate()
+                    .translationX(targetX)
+                    .setDuration(250)
+                    .setInterpolator(android.view.animation.DecelerateInterpolator())
+                    .start()
+            } else {
+                navSlider.translationX = targetX
+            }
         }
     }
 }

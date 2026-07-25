@@ -32,46 +32,59 @@
         app:cardElevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:padding="6dp">
 
-            <!-- Кнопка "Календарь/Расписание" -->
-            <ImageView
-                android:id="@+id/nav_today"
+            <!-- Ползунок (фон активной вкладки) -->
+            <View
+                android:id="@+id/nav_slider"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:src="@drawable/ic_month_calandar"
-                app:tint="@color/ui_primary" />
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_nav_slider" />
 
-            <!-- Кнопка "Поиск" -->
-            <ImageView
-                android:id="@+id/nav_search"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:src="@drawable/ic_formenu_search"
-                app:tint="@color/ui_text_sub" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-            <!-- Кнопка "Профиль" -->
-            <ImageView
-                android:id="@+id/nav_profile"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:src="@drawable/ic_menu_account"
-                app:tint="@color/ui_text_sub" />
+                <!-- Кнопка "Календарь/Расписание" -->
+                <ImageView
+                    android:id="@+id/nav_today"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/ic_month_calandar"
+                    app:tint="@color/ui_primary" />
 
-        </LinearLayout>
+                <!-- Кнопка "Поиск" -->
+                <ImageView
+                    android:id="@+id/nav_search"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/ic_formenu_search"
+                    app:tint="@color/ui_text_sub" />
+
+                <!-- Кнопка "Профиль" -->
+                <ImageView
+                    android:id="@+id/nav_profile"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/ic_menu_account"
+                    app:tint="@color/ui_text_sub" />
+
+            </LinearLayout>
+        </FrameLayout>
     </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

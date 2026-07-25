@@ -22,4 +22,7 @@
     <color name="accent_red">#E11D48</color>
     <color name="accent_orange">#D97706</color>
     <color name="accent_teal">#0891B2</color>
+
+    <!-- Цвет для ползунка меню -->
+    <color name="ui_slider_bg">#1A0061A4</color>
 </resources>

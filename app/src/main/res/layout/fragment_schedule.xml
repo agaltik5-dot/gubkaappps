@@ -18,7 +18,7 @@
         android:gravity="center"
         android:orientation="vertical"
         android:paddingTop="8dp"
-        android:paddingBottom="2dp"
+        android:paddingBottom="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
@@ -52,7 +52,7 @@
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
         android:paddingTop="0dp"
-        android:paddingBottom="0dp"
+        android:paddingBottom="2dp"
         app:layout_constraintTop_toBottomOf="@id/layout_header"
         tools:layout_editor_absoluteX="0dp">
 
@@ -64,16 +64,30 @@
             android:src="@drawable/ic_arrow_left"
             app:tint="@color/ui_text_main" />
 
-        <TextView
-            android:id="@+id/tv_month_year"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:fontFamily="sans-serif-medium"
             android:gravity="center"
-            android:text="Июль 2026"
-            android:textColor="@color/ui_text_main"
-            android:textSize="16sp" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_month_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:text="Июль 2026"
+                android:textColor="@color/ui_text_main"
+                android:textSize="16sp" />
+
+            <View
+                android:id="@+id/v_indicator_month"
+                android:layout_width="50dp"
+                android:layout_height="4dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_day_active" />
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/btn_next_week"
@@ -90,7 +104,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:orientation="horizontal"
-        android:paddingHorizontal="8dp"
+        android:paddingHorizontal="10dp"
         android:paddingVertical="4dp"
         android:weightSum="7"
         app:layout_constraintTop_toBottomOf="@id/layout_month_nav">
