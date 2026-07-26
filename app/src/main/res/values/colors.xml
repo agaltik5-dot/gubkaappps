@@ -9,7 +9,7 @@
     <color name="ui_surface">#FFFFFF</color>
     <color name="ui_text_main">#191C1E</color>
     <color name="ui_text_sub">#70777C</color>
-    <color name="ui_primary">#0061A4</color>
+    <color name="ui_primary">#0061A4</color> <!-- Глубокий синий -->
 
     <!-- Недостающие цвета -->
     <color name="ui_primary_dark">#00487D</color>
@@ -25,4 +25,5 @@
 
     <!-- Цвет для ползунка меню -->
     <color name="ui_slider_bg">#1A0061A4</color>
+
 </resources>

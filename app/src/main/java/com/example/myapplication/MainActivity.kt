@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.example.myapplication.ui.ProfileFragment
 import com.example.myapplication.ui.ScheduleFragment
 import com.example.myapplication.ui.SearchFragment
+import com.example.myapplication.ui.NewsFragment
 
 import android.view.HapticFeedbackConstants
 import android.view.View
@@ -61,19 +62,13 @@ class MainActivity : AppCompatActivity() {
     private fun setupBottomNav() {
         val navToday = findViewById<ImageView>(R.id.nav_today)
         val navSearch = findViewById<ImageView>(R.id.nav_search)
+        val navNews = findViewById<ImageView>(R.id.nav_news)
         val navProfile = findViewById<ImageView>(R.id.nav_profile)
 
-        navToday.setOnClickListener {
-            openTab(0)
-        }
-
-        navSearch.setOnClickListener {
-            openTab(1)
-        }
-
-        navProfile.setOnClickListener {
-            openTab(2)
-        }
+        navToday.setOnClickListener { openTab(0) }
+        navSearch.setOnClickListener { openTab(1) }
+        navNews.setOnClickListener { openTab(2) }
+        navProfile.setOnClickListener { openTab(3) }
     }
 
     private fun openTab(index: Int, animate: Boolean = true) {
@@ -83,16 +78,18 @@ class MainActivity : AppCompatActivity() {
         val currentIcon = when(index) {
             0 -> findViewById<View>(R.id.nav_today)
             1 -> findViewById<View>(R.id.nav_search)
+            2 -> findViewById<View>(R.id.nav_news)
             else -> findViewById<View>(R.id.nav_profile)
         }
-        currentIcon.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+        currentIcon?.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
 
         val oldIndex = selectedTabIndex
         selectedTabIndex = index
         val fragment: Fragment = when (index) {
             0 -> ScheduleFragment()
             1 -> SearchFragment()
-            2 -> ProfileFragment()
+            2 -> NewsFragment()
+            3 -> ProfileFragment()
             else -> ScheduleFragment()
         }
 
@@ -120,31 +117,37 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateNavTintByIndex(index: Int, animate: Boolean = true) {
         val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
-        // Достаем актуальный акцентный цвет
-        val accentColorRes = prefs.getInt("key_accent_color", R.color.accent_blue)
+        // Достаем актуальный акцентный цвет (сейчас это глубокий синий)
+        val accentColorRes = R.color.ui_primary
 
         val navToday = findViewById<ImageView>(R.id.nav_today)
         val navSearch = findViewById<ImageView>(R.id.nav_search)
+        val navNews = findViewById<ImageView>(R.id.nav_news)
         val navProfile = findViewById<ImageView>(R.id.nav_profile)
 
-        val navIcons = listOf(navToday, navSearch, navProfile)
+        val navIcons = listOf(navToday, navSearch, navNews, navProfile)
 
         navIcons.forEachIndexed { i, icon ->
-            val color = if (i == index) accentColorRes else R.color.ui_text_sub
-            icon.setColorFilter(ContextCompat.getColor(this, color))
+            val color = if (i == index) accentColorRes else R.color.ui_text_main
+            icon?.setColorFilter(ContextCompat.getColor(this, color))
         }
 
-        // Анимация ползунка
+        // Анимация индикатора (нижней палки)
         navSlider.post {
-            val totalWidth = (navSlider.parent as View).width - (navSlider.parent as View).paddingLeft - (navSlider.parent as View).paddingRight
-            val tabWidth = totalWidth / 3f
+            val parentView = navSlider.parent as View
+            val totalWidth = parentView.width - parentView.paddingLeft - parentView.paddingRight
+            val tabWidth = totalWidth / 4f
             
-            // Устанавливаем ширину ползунка (1/3 от меню)
+            // 📐 КАК МЕНЯТЬ ШИРИНУ ПАЛКИ:
+            // Измени коэффициент 0.6 (60%) на нужный (например, 0.4 для более короткой)
+            val indicatorWidth = tabWidth * 0.4f
+            
             val params = navSlider.layoutParams
-            params.width = tabWidth.toInt()
+            params.width = indicatorWidth.toInt()
             navSlider.layoutParams = params
 
-            val targetX = index * tabWidth
+            // Центрируем индикатор под иконкой
+            val targetX = (index * tabWidth) + (tabWidth - indicatorWidth) / 2f
             
             if (animate) {
                 navSlider.animate()

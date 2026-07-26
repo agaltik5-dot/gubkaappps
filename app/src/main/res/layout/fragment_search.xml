@@ -173,6 +173,17 @@
                 android:textSize="14sp"
                 android:visibility="gone" />
 
+            <Button
+                android:id="@+id/btn_select_group"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:text="Выбрать эту группу"
+                android:textAllCaps="false"
+                android:backgroundTint="@color/ui_primary"
+                android:textColor="@color/white"
+                app:cornerRadius="8dp" />
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

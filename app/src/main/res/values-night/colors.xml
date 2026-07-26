@@ -9,7 +9,7 @@
     <color name="ui_surface">#1E1E1E</color>
     <color name="ui_text_main">#E2E2E6</color>
     <color name="ui_text_sub">#8C9196</color>
-    <color name="ui_primary">#4D9FFF</color>
+    <color name="ui_primary">#4285F4</color> <!-- Насыщенный синий (не бирюзовый) -->
 
     <!-- Недостающие цвета -->
     <color name="ui_primary_dark">#003865</color>

@@ -1,5 +1,6 @@
 package com.example.myapplication.ui
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.myapplication.R
 import com.example.myapplication.Lesson
+import com.example.myapplication.data.ScheduleRepository
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -19,6 +21,10 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
     private var viewPager: androidx.viewpager2.widget.ViewPager2? = null
     private var selectedDayView: View? = null
     private var dayViews: List<LinearLayout?> = emptyList()
+    
+    private lateinit var scheduleRepository: ScheduleRepository
+    private var currentGroupId = -1
+    private var currentGroupCode = ""
 
     // Константы для бесконечного свайпа
     private val MAX_DAYS = 2000
@@ -28,6 +34,9 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        scheduleRepository = ScheduleRepository(requireContext())
+        loadSavedGroup()
 
         setupDaySelector(view)
         setupMonthNavigation(view)
@@ -35,8 +44,18 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         setupViewPager(view)
     }
 
+    private fun loadSavedGroup() {
+        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        currentGroupId = prefs.getInt("key_group_id", 10045)
+        currentGroupCode = prefs.getString("key_group_code", "ХТМ-25-04") ?: "ХТМ-25-04"
+    }
+
     private fun setupHeaderCalendar(view: View) {
         val btnOpenCalendar = view.findViewById<View>(R.id.btn_open_calendar)
+        val tvHeaderTitle = view.findViewById<TextView>(R.id.tv_schedule_title)
+        
+        tvHeaderTitle?.text = "Расписание $currentGroupCode"
+        
         btnOpenCalendar.setOnClickListener {
             val currentPos = viewPager?.currentItem ?: START_INDEX
             val datePicker = MaterialDatePicker.Builder.datePicker()
@@ -49,7 +68,13 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
                 selectedCal.timeInMillis = selection
                 
                 // Вычисляем разницу в днях от начала отсчета (сегодня в START_INDEX)
-                val diffDays = ((selectedCal.timeInMillis - today.timeInMillis) / (24 * 60 * 60 * 1000)).toInt()
+                val todayClear = today.clone() as Calendar
+                todayClear.set(Calendar.HOUR_OF_DAY, 0)
+                todayClear.set(Calendar.MINUTE, 0)
+                todayClear.set(Calendar.SECOND, 0)
+                todayClear.set(Calendar.MILLISECOND, 0)
+                
+                val diffDays = ((selectedCal.timeInMillis - todayClear.timeInMillis) / (24 * 60 * 60 * 1000)).toInt()
                 
                 viewPager?.setCurrentItem(START_INDEX + diffDays, true)
             }
@@ -78,8 +103,7 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
 
         val adapter = DailyScheduleAdapter(MAX_DAYS) { position ->
             val date = getDateForPosition(position)
-            val dayName = date.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.forLanguageTag("ru"))
-            createSampleLessons(dayName ?: "")
+            scheduleRepository.getScheduleForDate(currentGroupId, date)
         }
         
         viewPager?.adapter = adapter
