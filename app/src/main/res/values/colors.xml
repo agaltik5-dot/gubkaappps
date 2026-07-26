@@ -26,4 +26,9 @@
     <!-- Цвет для ползунка меню -->
     <color name="ui_slider_bg">#1A0061A4</color>
 
+    <!-- Цвета для типов занятий -->
+    <color name="type_lecture">#0061A4</color>
+    <color name="type_seminar">#00875A</color>
+    <color name="type_lab">#D97706</color>
+    <color name="type_other">#70777C</color>
 </resources>

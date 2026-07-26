@@ -5,17 +5,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myapplication.Lesson
+import com.example.myapplication.ScheduleItem
 import com.example.myapplication.LessonAdapter
 import com.example.myapplication.R
 
 /**
  * Адаптер для ViewPager2, реализующий "бесконечный" скролл.
- * @param lessonProvider функция, которая возвращает список уроков для указанной позиции
+ * @param lessonProvider функция, которая возвращает список элементов расписания для указанной позиции
  */
 class DailyScheduleAdapter(
     private val itemCount: Int,
-    private val lessonProvider: (position: Int) -> List<Lesson>
+    private val lessonProvider: (position: Int) -> List<ScheduleItem>
 ) : RecyclerView.Adapter<DailyScheduleAdapter.DayViewHolder>() {
 
     class DayViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -29,9 +29,9 @@ class DailyScheduleAdapter(
     }
 
     override fun onBindViewHolder(holder: DayViewHolder, position: Int) {
-        val dayLessons = lessonProvider(position)
+        val dayItems = lessonProvider(position)
         holder.recyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
-        holder.recyclerView.adapter = LessonAdapter(dayLessons)
+        holder.recyclerView.adapter = LessonAdapter(dayItems)
     }
 
     override fun getItemCount(): Int = itemCount

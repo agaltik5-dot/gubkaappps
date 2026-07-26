@@ -7,43 +7,85 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 /**
- * Адаптер для списка занятий. 
- * Он отвечает за превращение данных из списка Lesson в визуальные карточки.
+ * Адаптер для списка элементов расписания (пары и перерывы).
  */
-class LessonAdapter(private val lessons: List<Lesson>) : 
-    RecyclerView.Adapter<LessonAdapter.LessonViewHolder>() {
+class LessonAdapter(private val items: List<ScheduleItem>) : 
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    companion object {
+        private const val TYPE_LESSON = 0
+        private const val TYPE_GAP = 1
+    }
 
     /**
-     * ViewHolder хранит ссылки на все View внутри одной карточки, 
-     * чтобы не искать их через findViewById каждый раз (это ускоряет работу).
+     * ViewHolder для карточки занятия.
      */
     class LessonViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvStartTime: TextView = view.findViewById(R.id.tv_start_time)
         val tvEndTime: TextView = view.findViewById(R.id.tv_end_time)
-        val tvDuration: TextView = view.findViewById(R.id.tv_duration)
         val tvSubject: TextView = view.findViewById(R.id.tv_subject)
         val tvType: TextView = view.findViewById(R.id.tv_type)
         val tvDetails: TextView = view.findViewById(R.id.tv_details)
+        val vIndicator: View = view.findViewById(R.id.v_indicator)
     }
 
-    // Создает новую карточку (вызывается системой, когда нужно отобразить новый элемент)
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LessonViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_lesson, parent, false)
-        return LessonViewHolder(view)
+    /**
+     * ViewHolder для разметки перерыва.
+     */
+    class GapViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val tvGap: TextView = view.findViewById(R.id.tv_gap)
     }
 
-    // Заполняет карточку данными из конкретного объекта Lesson
-    override fun onBindViewHolder(holder: LessonViewHolder, position: Int) {
-        val lesson = lessons[position]
-        holder.tvStartTime.text = lesson.startTime
-        holder.tvEndTime.text = lesson.endTime
-        holder.tvDuration.text = lesson.duration
-        holder.tvSubject.text = lesson.subject
-        holder.tvType.text = lesson.type
-        holder.tvDetails.text = lesson.details
+    override fun getItemViewType(position: Int): Int {
+        return when (items[position]) {
+            is Lesson -> TYPE_LESSON
+            is Gap -> TYPE_GAP
+        }
     }
 
-    // Возвращает общее количество элементов в списке
-    override fun getItemCount(): Int = lessons.size
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return when (viewType) {
+            TYPE_LESSON -> {
+                val view = inflater.inflate(R.layout.item_lesson, parent, false)
+                LessonViewHolder(view)
+            }
+            else -> {
+                val view = inflater.inflate(R.layout.item_gap, parent, false)
+                GapViewHolder(view)
+            }
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val item = items[position]
+        if (holder is LessonViewHolder && item is Lesson) {
+            val context = holder.itemView.context
+            holder.tvStartTime.text = item.startTime
+            holder.tvEndTime.text = item.endTime
+            holder.tvSubject.text = item.subject
+            holder.tvType.text = item.type
+            holder.tvDetails.text = item.details
+
+            // Цветовая кодировка в зависимости от типа
+            val typeColor = getColorForType(context, item.type)
+            holder.vIndicator.setBackgroundColor(typeColor)
+            holder.tvType.setTextColor(typeColor)
+
+        } else if (holder is GapViewHolder && item is Gap) {
+            holder.tvGap.text = item.durationText
+        }
+    }
+
+    private fun getColorForType(context: android.content.Context, type: String): Int {
+        val colorRes = when (type.lowercase()) {
+            "лекция" -> R.color.type_lecture
+            "семинар", "практика" -> R.color.type_seminar
+            "лабораторная", "лаб" -> R.color.type_lab
+            else -> R.color.type_other
+        }
+        return androidx.core.content.ContextCompat.getColor(context, colorRes)
+    }
+
+    override fun getItemCount(): Int = items.size
 }

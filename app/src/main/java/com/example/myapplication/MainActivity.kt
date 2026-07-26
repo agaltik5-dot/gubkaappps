@@ -137,9 +137,8 @@ class MainActivity : AppCompatActivity() {
             val parentView = navSlider.parent as View
             val totalWidth = parentView.width - parentView.paddingLeft - parentView.paddingRight
             val tabWidth = totalWidth / 4f
-            
-            // 📐 КАК МЕНЯТЬ ШИРИНУ ПАЛКИ:
-            // Измени коэффициент 0.6 (60%) на нужный (например, 0.4 для более короткой)
+
+            // Изменение длины анимированной палки
             val indicatorWidth = tabWidth * 0.4f
             
             val params = navSlider.layoutParams

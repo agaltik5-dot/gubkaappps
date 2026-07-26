@@ -109,7 +109,7 @@
                     android:layout_weight="1"
                     android:clickable="true"
                     android:focusable="true"
-                    android:padding="13dp"
+                    android:padding="12.2dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/note_text_svgrepo_com"
                     app:tint="@color/ui_text_main" />

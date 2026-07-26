@@ -1,7 +1,9 @@
 package com.example.myapplication.data
 
 import android.content.Context
+import com.example.myapplication.Gap
 import com.example.myapplication.Lesson
+import com.example.myapplication.ScheduleItem
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.InputStream
@@ -43,7 +45,7 @@ class ScheduleRepository(private val context: Context) {
     /**
      * Загружает расписание для конкретной даты и ID группы из JSON в assets.
      */
-    fun getScheduleForDate(groupId: Int, date: Calendar): List<Lesson> {
+    fun getScheduleForDate(groupId: Int, date: Calendar): List<ScheduleItem> {
         val weekKey = getWeekKey(date)
         val fileName = "cache/week_${groupId}_$weekKey.json"
         
@@ -75,7 +77,7 @@ class ScheduleRepository(private val context: Context) {
         return String.format("%d-W%02d", isoYear, week)
     }
 
-    private fun parseScheduleJson(jsonString: String, targetDate: Calendar): List<Lesson> {
+    private fun parseScheduleJson(jsonString: String, targetDate: Calendar): List<ScheduleItem> {
         val lessons = mutableListOf<Lesson>()
         val root = JSONObject(jsonString)
         val rows = root.getJSONObject("rows")
@@ -108,7 +110,51 @@ class ScheduleRepository(private val context: Context) {
             }
         }
         
-        return lessons.sortedBy { it.startTime }
+        val sortedLessons = lessons.sortedBy { timeToMinutes(it.startTime) }
+        return addGapsBetweenLessons(sortedLessons)
+    }
+
+    private fun addGapsBetweenLessons(lessons: List<Lesson>): List<ScheduleItem> {
+        if (lessons.isEmpty()) return emptyList()
+        
+        val items = mutableListOf<ScheduleItem>()
+        for (i in lessons.indices) {
+            items.add(lessons[i])
+            
+            // Если есть следующая пара, считаем перерыв
+            if (i < lessons.size - 1) {
+                val currentEnd = timeToMinutes(lessons[i].endTime)
+                val nextStart = timeToMinutes(lessons[i + 1].startTime)
+                
+                val gapMinutes = nextStart - currentEnd
+                if (gapMinutes > 0) {
+                    items.add(Gap(formatGapText(gapMinutes)))
+                }
+            }
+        }
+        return items
+    }
+
+    private fun timeToMinutes(time: String): Int {
+        return try {
+            val parts = time.split(":")
+            val hours = parts[0].trim().toInt()
+            val minutes = parts[1].trim().toInt()
+            hours * 60 + minutes
+        } catch (e: Exception) {
+            0
+        }
+    }
+
+    private fun formatGapText(minutes: Int): String {
+        return when {
+            minutes >= 60 -> {
+                val h = minutes / 60
+                val m = minutes % 60
+                if (m == 0) "перерыв $h ч" else "перерыв $h ч $m мин"
+            }
+            else -> "перерыв $minutes мин"
+        }
     }
 
     private fun mapJsonToLesson(json: JSONObject, timeChunks: org.json.JSONArray): Lesson {
