@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -11,290 +11,390 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp">
 
-        <!-- Заголовок экрана -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
-            android:fontFamily="sans-serif-bold"
-            android:text="Профиль"
-            android:textColor="@color/ui_text_main"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <!-- 1. КАРТОЧКА ПОЛЬЗОВАТЕЛЯ -->
-        <androidx.cardview.widget.CardView
+        <!-- 1. ШАПКА ПРОФИЛЯ -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingVertical="12dp">
+
+            <ImageView
+                android:id="@+id/img_profile_avatar"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/ic_menu_account"
+                app:tint="@color/ui_primary" />
+
+            <TextView
+                android:id="@+id/tv_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Иван Иванов"
+                android:textColor="@color/ui_text_main"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_user_sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Инженерной механики • МР-24-10"
+                android:textColor="@color/ui_text_sub"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+
+        <!-- 2. СТАТУС И ЦВЕТОВАЯ СХЕМА -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
             app:cardBackgroundColor="@color/ui_surface"
             app:cardCornerRadius="16dp"
-            app:cardElevation="2dp">
+            app:cardElevation="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:orientation="vertical">
 
-                <!-- Аватарка (круглый профиль) -->
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/iv_profile_avatar"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:background="@color/ui_primary"
-                    android:padding="16dp"
-                    android:src="@drawable/ic_menu_account"
-                    app:shapeAppearanceOverlay="@style/CircularImageView"
-                    app:tint="@color/white" />
-
-                <!-- ФИО / Ник Студента с иконкой редактирования -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/tv_profile_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-bold"
-                        android:text="Евгений Агальцов"
-                        android:textColor="@color/ui_text_main"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <ImageView
-                        android:id="@+id/btn_edit_name"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginStart="8dp"
-                        android:background="?selectableItemBackgroundBorderless"
-                        android:src="@android:drawable/ic_menu_edit"
-                        app:tint="@color/ui_primary" />
-                </LinearLayout>
-
-                <!-- Детали (Факультет и группа) -->
                 <TextView
-                    android:id="@+id/tv_profile_details"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Инженерной механики • МР-24-10"
-                    android:textColor="@color/ui_text_sub"
-                    android:textSize="13sp" />
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- 2. БЛОК НАСТРОЕК -->
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginBottom="8dp"
-            android:text="НАСТРОЙКИ ПРИЛОЖЕНИЯ"
-            android:textColor="@color/ui_text_sub"
-            android:textSize="11sp"
-            android:textStyle="bold" />
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/ui_surface"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="8dp">
-
-                <!-- Переключатель тёмной темы -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="12dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Тёмная тема"
-                        android:textColor="@color/ui_text_main"
-                        android:textSize="15sp" />
-
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switch_dark_theme"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-                <!-- Блок выбора акцентного цвета -->
-                <LinearLayout
+                    android:id="@+id/btn_status"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:text="Цветовая схема"
-                        android:textColor="@color/ui_text_main"
-                        android:textSize="15sp" />
-
-                    <!-- Горизонтальная лента с 6 кружками -->
-                    <LinearLayout
-                        android:id="@+id/color_palette_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/color_blue"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:layout_marginHorizontal="6dp"
-                            android:background="@color/accent_blue"
-                            app:shapeAppearanceOverlay="@style/CircularImageView" />
-
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/color_green"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:layout_marginHorizontal="6dp"
-                            android:background="@color/accent_green"
-                            app:shapeAppearanceOverlay="@style/CircularImageView" />
-
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/color_purple"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:layout_marginHorizontal="6dp"
-                            android:background="@color/accent_purple"
-                            app:shapeAppearanceOverlay="@style/CircularImageView" />
-
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/color_red"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:layout_marginHorizontal="6dp"
-                            android:background="@color/accent_red"
-                            app:shapeAppearanceOverlay="@style/CircularImageView" />
-
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/color_orange"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:layout_marginHorizontal="6dp"
-                            android:background="@color/accent_orange"
-                            app:shapeAppearanceOverlay="@style/CircularImageView" />
-
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/color_teal"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:layout_marginHorizontal="6dp"
-                            android:background="@color/accent_teal"
-                            app:shapeAppearanceOverlay="@style/CircularImageView" />
-
-                    </LinearLayout>
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/ui_divider" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/ui_divider" />
-
-                <!-- Уведомления -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="12dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Уведомления о парах"
-                        android:textColor="@color/ui_text_main"
-                        android:textSize="15sp" />
-
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switch_notifications"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true" />
-                </LinearLayout>
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- 3. ДЕЙСТВИЯ И ДАННЫЕ -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginBottom="8dp"
-            android:text="АККАУНТ И О ПРИЛОЖЕНИИ"
-            android:textColor="@color/ui_text_sub"
-            android:textSize="11sp"
-            android:textStyle="bold" />
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/ui_surface"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="8dp">
-
-                <!-- Кнопка «Сменить группу» -->
-                <TextView
-                    android:id="@+id/btn_change_group"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
                     android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center_vertical"
-                    android:paddingHorizontal="12dp"
-                    android:text="Сменить основную группу"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="16dp"
+                    android:text="😊   Сменить учебный статус"
                     android:textColor="@color/ui_primary"
                     android:textSize="15sp" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/ui_divider" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/ui_divider" />
 
-                <!--КНОПКА: Сброс настроек -->
+                <TextView
+                    android:id="@+id/btn_theme_color"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="16dp"
+                    android:text="🎨   Цветовая схема приложения"
+                    android:textColor="@color/ui_primary"
+                    android:textSize="15sp" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <!-- 3. ОСНОВНОЙ СПИСОК НАСТРОЕК (БЕЗ ПОДПИСИ РАЗДЕЛА) -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/ui_surface"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Данные студента -->
+                <LinearLayout
+                    android:id="@+id/btn_account_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="👤  Данные студента"
+                        android:textColor="@color/ui_text_main"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/ui_text_sub" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/ui_divider" />
+
+                <!-- Уведомления и звуки (Раздел) -->
+                <LinearLayout
+                    android:id="@+id/btn_notifications_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🔔  Уведомления и звуки"
+                        android:textColor="@color/ui_text_main"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/ui_text_sub" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/ui_divider" />
+
+                <!-- Заметки и Избранное -->
+                <LinearLayout
+                    android:id="@+id/btn_notes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🔖  Заметки и Избранное"
+                        android:textColor="@color/ui_text_main"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/ui_text_sub" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/ui_divider" />
+
+                <!-- Настройки темы (Раздел) -->
+                <LinearLayout
+                    android:id="@+id/btn_theme_settings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🌙  Настройки темы"
+                        android:textColor="@color/ui_text_main"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/ui_text_sub" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/ui_divider" />
+
+                <!-- Язык -->
+                <LinearLayout
+                    android:id="@+id/btn_language"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🌐  Язык"
+                        android:textColor="@color/ui_text_main"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/tv_current_language"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Русский"
+                        android:textColor="@color/ui_primary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <!-- 4. МАСШТАБ ПО УМОЛЧАНИЮ (ПОЛЗУНОК КАК В ТЕЛЕГРАМ) -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/ui_surface"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="👁  Масштаб по умолчанию"
+                        android:textColor="@color/ui_text_main"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/tv_scale_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="100%"
+                        android:textColor="@color/ui_text_sub"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/seekbar_scale"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:max="50"
+                    android:progress="0" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <!-- 5. РЕСУРСЫ ВУЗА -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/ui_surface"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/btn_link_lms"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🎓  Личный кабинет (LMS)"
+                        android:textColor="@color/ui_text_main"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/ui_text_sub" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/ui_divider" />
+
+                <LinearLayout
+                    android:id="@+id/btn_link_map"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🗺  Едушка / Схема"
+                        android:textColor="@color/ui_text_main"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/ui_text_sub" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <!-- 6. СБРОС И ИНФО -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/ui_surface"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
                 <TextView
                     android:id="@+id/btn_reset_settings"
                     android:layout_width="match_parent"
@@ -302,32 +402,36 @@
                     android:background="?selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
-                    android:minHeight="48dp"
                     android:gravity="center_vertical"
+                    android:minHeight="48dp"
                     android:paddingHorizontal="16dp"
-                    android:text="Сбросить настройки и кэш"
+                    android:text="⚙️   Сбросить настройки и кэш"
                     android:textColor="#E11D48"
                     android:textSize="15sp" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/ui_divider" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/ui_divider" />
 
-                <!-- Кнопка «О приложение» -->
                 <TextView
                     android:id="@+id/btn_about"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:background="?selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center_vertical"
-                    android:paddingHorizontal="12dp"
-                    android:text="О приложении (версия 1.0)"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="16dp"
+                    android:text="ℹ️   О приложении (v1.0)"
                     android:textColor="@color/ui_text_main"
                     android:textSize="15sp" />
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Отступ под плавающее меню -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="120dp" />
 
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>
