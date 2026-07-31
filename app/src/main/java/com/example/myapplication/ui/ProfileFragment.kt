@@ -11,6 +11,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import com.example.myapplication.R
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -34,8 +35,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
         val btnLinkLms = view.findViewById<LinearLayout>(R.id.btn_link_lms)
         val btnLinkMap = view.findViewById<LinearLayout>(R.id.btn_link_map)
-        val btnResetSettings = view.findViewById<TextView>(R.id.btn_reset_settings)
-        val btnAbout = view.findViewById<TextView>(R.id.btn_about)
+
+        // Исправлены типы с TextView на LinearLayout
+        val btnResetSettings = view.findViewById<LinearLayout>(R.id.btn_reset_settings)
+        val btnAbout = view.findViewById<LinearLayout>(R.id.btn_about)
 
         // 1. Раздел "Уведомления и звуки"
         btnNotificationsSection.setOnClickListener {
@@ -56,41 +59,58 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 .setItems(languages) { _, which ->
                     val selectedLang = languages[which]
                     tvCurrentLanguage.text = selectedLang
-                    prefs.edit().putString("app_language", selectedLang).apply()
+                    prefs.edit { putString("app_language", selectedLang) }
                 }
                 .show()
         }
 
-        // 4. Логика тумблера и ползунка масштаба (диапазон 50% - 150%, 100% ровно посередине)
+        // 4. Логика тумблера и ползунка масштаба
+        // По умолчанию тумблер включен (true -> тумблер справа, ползунок активен)
         val isDefaultScale = prefs.getBoolean("is_default_scale", true)
         switchDefaultScale.isChecked = isDefaultScale
-        seekBarScale.isEnabled = !isDefaultScale
+
+        // Когда тумблер включен (справа) -> ползунок активен
+        // Когда выключен (слева) -> ползунок заблокирован и серый
+        seekBarScale.isEnabled = isDefaultScale
 
         val savedScale = prefs.getInt("app_scale", 100)
         tvScaleValue.text = "$savedScale%"
-        seekBarScale.progress = savedScale - 50 // При 100% progress будет 50 (ровно центр)
+        seekBarScale.progress = if (isDefaultScale) savedScale - 50 else 0
 
         switchDefaultScale.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("is_default_scale", isChecked).apply()
-            seekBarScale.isEnabled = !isChecked
-            if (isChecked) {
-                seekBarScale.progress = 50 // Сбрасываем ползунок на 100%
+            prefs.edit { putBoolean("is_default_scale", isChecked) }
+
+            // Если тумблер справа (isChecked = true) -> ползунок рабочий
+            // Если тумблер перевели влево (isChecked = false) -> блокируем (серый)
+            seekBarScale.isEnabled = isChecked
+
+            if (!isChecked) {
+                // Если тумблер перевели влево: ползунок сбрасывается влево и блокируется
+                seekBarScale.progress = 0
                 tvScaleValue.text = "100%"
-                prefs.edit().putInt("app_scale", 100).apply()
+                prefs.edit { putInt("app_scale", 100) }
+            } else {
+                // При возврате тумблера вправо возвращаем 100% (середина)
+                seekBarScale.progress = 50
+                tvScaleValue.text = "100%"
             }
         }
 
         seekBarScale.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val currentScale = 50 + progress
-                tvScaleValue.text = "$currentScale%"
+                if (switchDefaultScale.isChecked) {
+                    val currentScale = 50 + progress
+                    tvScaleValue.text = "$currentScale%"
+                }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                val finalScale = 50 + (seekBar?.progress ?: 50)
-                prefs.edit().putInt("app_scale", finalScale).apply()
+                if (switchDefaultScale.isChecked) {
+                    val finalScale = 50 + (seekBar?.progress ?: 50)
+                    prefs.edit { putInt("app_scale", finalScale) }
+                }
             }
         })
 
@@ -104,7 +124,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 .setTitle("Сброс настроек")
                 .setMessage("Вы уверены, что хотите очистить кэш и настройки?")
                 .setPositiveButton("Сбросить") { _, _ ->
-                    prefs.edit().clear().apply()
+                    prefs.edit { clear() }
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
                     requireActivity().recreate()
                 }
@@ -112,6 +132,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 .show()
         }
 
+        // 7. О программе
         btnAbout.setOnClickListener {
             Toast.makeText(requireContext(), "Приложение Расписание v1.0", Toast.LENGTH_SHORT).show()
         }
@@ -121,7 +142,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             startActivity(intent)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Toast.makeText(requireContext(), "Не удалось открыть ссылку", Toast.LENGTH_SHORT).show()
         }
     }
