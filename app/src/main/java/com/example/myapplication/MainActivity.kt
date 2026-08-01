@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             replaceFragment(fragment)
         }
-        
+
         updateNavTintByIndex(index, animate)
     }
 
@@ -140,14 +140,14 @@ class MainActivity : AppCompatActivity() {
 
             // Изменение длины анимированной палки
             val indicatorWidth = tabWidth * 0.4f
-            
+
             val params = navSlider.layoutParams
             params.width = indicatorWidth.toInt()
             navSlider.layoutParams = params
 
             // Центрируем индикатор под иконкой
             val targetX = (index * tabWidth) + (tabWidth - indicatorWidth) / 2f
-            
+
             if (animate) {
                 navSlider.animate()
                     .translationX(targetX)

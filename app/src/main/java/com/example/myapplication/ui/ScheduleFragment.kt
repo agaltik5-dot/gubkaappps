@@ -7,9 +7,10 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
-import com.example.myapplication.R
 import com.example.myapplication.Lesson
+import com.example.myapplication.R
 import com.example.myapplication.data.ScheduleRepository
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
@@ -21,7 +22,7 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
     private var viewPager: androidx.viewpager2.widget.ViewPager2? = null
     private var selectedDayView: View? = null
     private var dayViews: List<LinearLayout?> = emptyList()
-    
+
     private lateinit var scheduleRepository: ScheduleRepository
     private var currentGroupId = -1
     private var currentGroupCode = ""
@@ -34,7 +35,7 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
+
         scheduleRepository = ScheduleRepository(requireContext())
         loadSavedGroup()
 
@@ -42,6 +43,12 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         setupMonthNavigation(view)
         setupHeaderCalendar(view)
         setupViewPager(view)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // При возврате из настроек гарантируем перерисовку UI с актуальным акцентным цветом
+        viewPager?.currentItem?.let { updateUIForPosition(it) }
     }
 
     private fun loadSavedGroup() {
@@ -53,10 +60,10 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
     private fun setupHeaderCalendar(view: View) {
         val btnOpenCalendar = view.findViewById<View>(R.id.btn_open_calendar)
         val tvHeaderTitle = view.findViewById<TextView>(R.id.tv_schedule_title)
-        
+
         tvHeaderTitle?.text = "Расписание $currentGroupCode"
-        
-        btnOpenCalendar.setOnClickListener {
+
+        btnOpenCalendar?.setOnClickListener {
             val currentPos = viewPager?.currentItem ?: START_INDEX
             val datePicker = MaterialDatePicker.Builder.datePicker()
                 .setTitleText("Выберите дату")
@@ -66,19 +73,19 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
             datePicker.addOnPositiveButtonClickListener { selection ->
                 val selectedCal = Calendar.getInstance()
                 selectedCal.timeInMillis = selection
-                
+
                 // Вычисляем разницу в днях от начала отсчета (сегодня в START_INDEX)
                 val todayClear = today.clone() as Calendar
                 todayClear.set(Calendar.HOUR_OF_DAY, 0)
                 todayClear.set(Calendar.MINUTE, 0)
                 todayClear.set(Calendar.SECOND, 0)
                 todayClear.set(Calendar.MILLISECOND, 0)
-                
+
                 val diffDays = ((selectedCal.timeInMillis - todayClear.timeInMillis) / (24 * 60 * 60 * 1000)).toInt()
-                
+
                 viewPager?.setCurrentItem(START_INDEX + diffDays, true)
             }
-            
+
             datePicker.show(parentFragmentManager, "DATE_PICKER")
         }
     }
@@ -87,12 +94,12 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         val btnPrev = view.findViewById<View>(R.id.btn_prev_week)
         val btnNext = view.findViewById<View>(R.id.btn_next_week)
 
-        btnPrev.setOnClickListener {
+        btnPrev?.setOnClickListener {
             val currentPos = viewPager?.currentItem ?: START_INDEX
             viewPager?.setCurrentItem(currentPos - 7, true)
         }
 
-        btnNext.setOnClickListener {
+        btnNext?.setOnClickListener {
             val currentPos = viewPager?.currentItem ?: START_INDEX
             viewPager?.setCurrentItem(currentPos + 7, true)
         }
@@ -105,7 +112,7 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
             val date = getDateForPosition(position)
             scheduleRepository.getScheduleForDate(currentGroupId, date)
         }
-        
+
         viewPager?.adapter = adapter
 
         viewPager?.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
@@ -130,19 +137,28 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
 
     private fun updateUIForPosition(position: Int) {
         val selectedDate = getDateForPosition(position)
-        
+
+        // Достаем сохраненный акцентный цвет
+        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val accentColorHex = prefs.getString("accent_color", "#4FC3F7") ?: "#4FC3F7"
+        val accentColor = accentColorHex.toColorInt()
+
         // 1. Обновляем заголовок (Месяц . Год)
         val tvMonthYear = view?.findViewById<TextView>(R.id.tv_month_year)
         val monthName = selectedDate.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.forLanguageTag("ru"))
             ?.replaceFirstChar { it.uppercase() }
         tvMonthYear?.text = "$monthName  •  ${selectedDate.get(Calendar.YEAR)}"
 
-        // 2. Обновляем инфо о дате под заголовком
+        // 2. Перекрашиваем верхнюю декоративную полоску под месяцем
+        val indicatorLine = view?.findViewById<View>(R.id.v_indicator_month)
+        indicatorLine?.background?.setTint(accentColor)
+
+        // 3. Обновляем инфо о дате под заголовком
         val tvDateInfo = view?.findViewById<TextView>(R.id.tv_current_date_info)
         val fullDateFormatter = SimpleDateFormat("EEEE, d MMMM", Locale.forLanguageTag("ru"))
         tvDateInfo?.text = fullDateFormatter.format(selectedDate.time).replaceFirstChar { it.uppercase() }
 
-        // 3. Обновляем числа в кнопках (ПН-ВС) для текущей недели
+        // 4. Обновляем числа и подсветку в кнопках (ПН-ВС) для текущей недели
         val startOfWeek = selectedDate.clone() as Calendar
         startOfWeek.firstDayOfWeek = Calendar.MONDAY
         val dayOfWeek = startOfWeek.get(Calendar.DAY_OF_WEEK)
@@ -153,18 +169,18 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
             if (dayView != null) {
                 val tvNumber = dayView.getChildAt(1) as? TextView
                 tvNumber?.text = startOfWeek.get(Calendar.DAY_OF_MONTH).toString()
-                
+
                 val isSelected = isSameDay(startOfWeek, selectedDate)
                 val isToday = isSameDay(startOfWeek, today)
-                
-                updateDayViewStyle(dayView, isSelected, isToday)
-                
+
+                updateDayViewStyle(dayView, isSelected, isToday, accentColor)
+
                 startOfWeek.add(Calendar.DAY_OF_YEAR, 1)
             }
         }
     }
 
-    private fun updateDayViewStyle(view: View, isSelected: Boolean, isToday: Boolean) {
+    private fun updateDayViewStyle(view: View, isSelected: Boolean, isToday: Boolean, accentColor: Int) {
         val context = requireContext()
         val dayText = (view as LinearLayout).getChildAt(0) as TextView
         val numText = view.getChildAt(1) as TextView
@@ -172,6 +188,7 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         when {
             isSelected -> {
                 view.setBackgroundResource(R.drawable.bg_day_active)
+                view.background?.setTint(accentColor)
                 dayText.setTextColor(Color.WHITE)
                 numText.setTextColor(Color.WHITE)
                 view.elevation = 8f
@@ -179,12 +196,14 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
             }
             isToday -> {
                 view.setBackgroundResource(R.drawable.bg_day_today)
+                view.background?.clearColorFilter()
                 dayText.setTextColor(ContextCompat.getColor(context, R.color.ui_primary))
                 numText.setTextColor(ContextCompat.getColor(context, R.color.ui_text_main))
                 view.elevation = 0f
             }
             else -> {
                 view.setBackgroundResource(R.drawable.bg_day_inactive)
+                view.background?.clearColorFilter()
                 dayText.setTextColor(ContextCompat.getColor(context, R.color.ui_text_sub))
                 numText.setTextColor(ContextCompat.getColor(context, R.color.ui_text_main))
                 view.elevation = 0f
@@ -208,10 +227,10 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
                 val currentPos = viewPager?.currentItem ?: START_INDEX
                 val currentDate = getDateForPosition(currentPos)
                 val targetDayOfWeek = if (index == 6) Calendar.SUNDAY else index + 2
-                
+
                 val currentDayOfWeek = currentDate.get(Calendar.DAY_OF_WEEK)
                 val diff = targetDayOfWeek - currentDayOfWeek
-                
+
                 viewPager?.setCurrentItem(currentPos + diff, true)
             }
         }
@@ -219,7 +238,7 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
 
     private fun isSameDay(cal1: Calendar, cal2: Calendar): Boolean {
         return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
-               cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
     }
 
     private fun createSampleLessons(dayName: String): List<Lesson> {

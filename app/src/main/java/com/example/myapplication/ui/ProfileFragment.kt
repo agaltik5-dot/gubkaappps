@@ -45,9 +45,9 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             Toast.makeText(requireContext(), "Раздел: Уведомления и звуки", Toast.LENGTH_SHORT).show()
         }
 
-        // 2. Раздел "Настройки темы"
+        // 2. Раздел "Настройки темы" — ТЕПЕРЬ ОТКРЫВАЕТ ФРАГМЕНТ НАСТРОЕК
         btnThemeSettings.setOnClickListener {
-            Toast.makeText(requireContext(), "Раздел: Настройки темы", Toast.LENGTH_SHORT).show()
+            openThemeSettings()
         }
 
         // 3. Выбор языка
@@ -136,6 +136,15 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         btnAbout.setOnClickListener {
             Toast.makeText(requireContext(), "Приложение Расписание v1.0", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun openThemeSettings() {
+        parentFragmentManager.beginTransaction()
+            // Переходим в ThemeSettingsFragment
+            // Замени R.id.fragment_container на ID твоего FrameLayout / FragmentContainerView из activity_main.xml
+            .replace(R.id.fragment_container, ThemeSettingsFragment())
+            .addToBackStack(null) // Чтобы работал возврат назад по стрелке или кнопке "Назад" телефона
+            .commit()
     }
 
     private fun openWebLink(url: String) {
