@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="24dp">
+
+        <!-- 1. Верхняя панель (Кнопка Назад и Три точки) -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:paddingHorizontal="16dp">
+
+            <ImageView
+                android:id="@+id/btn_back"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_arrow_left"
+                app:tint="?android:attr/textColorPrimary" />
+
+            <ImageView
+                android:id="@+id/btn_more"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_info"
+                app:tint="?android:attr/textColorPrimary" />
+        </RelativeLayout>
+
+        <!-- 2. Аватарка и ФИО -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp">
+
+            <!-- Круглая аватарка -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_student_avatar"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_menu_account"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
+
+            <TextView
+                android:id="@+id/tv_student_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Иванов Иван"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_student_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Очная форма"
+                android:textColor="#808080"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- 3. Две плашки действий (Выбрать фото / Изменить) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <!-- Кнопка "Выбрать фото" -->
+            <LinearLayout
+                android:id="@+id/btn_select_photo"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card_floating"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_camera"
+                    app:tint="?android:attr/textColorPrimary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Выбрать фото"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- Кнопка "Изменить" -->
+            <LinearLayout
+                android:id="@+id/btn_edit_profile"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_card_floating"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_edit_pencil"
+                    app:tint="?android:attr/textColorPrimary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Изменить"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 4. Карточка с данными -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_card_floating"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- 1. Преподаватель или Студент -->
+            <TextView
+                android:id="@+id/tv_role_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Студент"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Статус"
+                android:textColor="#808080"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="#1A808080" />
+
+            <!-- 2. Группа -->
+            <TextView
+                android:id="@+id/tv_group_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ИВТ-221"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Учебная группа"
+                android:textColor="#808080"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="#1A808080" />
+
+            <!-- 3. Факультет -->
+            <TextView
+                android:id="@+id/tv_faculty_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Информационные технологии"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Факультет"
+                android:textColor="#808080"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="#1A808080" />
+
+            <!-- 4. Дата рождения -->
+            <TextView
+                android:id="@+id/tv_birth_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="27 мар. 2005 (19 лет)"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="День рождения"
+                android:textColor="#808080"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
