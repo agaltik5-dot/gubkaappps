@@ -47,11 +47,118 @@
             android:paddingHorizontal="16dp"
             android:paddingBottom="24dp">
 
-            <!-- БЛОК "СОЗДАТЬ ТЕМУ" -->
+            <!-- 1. ДЕМОНСТРАЦИОННОЕ ПРЕВЬЮ РАСПИСАНИЯ -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_preview_schedule"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="@color/ui_surface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Превью элементов расписания"
+                        android:textColor="@color/ui_text_sub"
+                        android:textSize="12sp" />
+
+                    <!-- Карточка пары -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <!-- Акцентный индикатор слева -->
+                        <View
+                            android:id="@+id/view_preview_indicator"
+                            android:layout_width="4dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/bg_icon_rounded" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Высшая математика"
+                                android:textColor="@color/ui_text_main"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="08:30 – 10:05 • Ауд. 312"
+                                android:textColor="@color/ui_text_sub"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <!-- Бейджик типа пары -->
+                        <TextView
+                            android:id="@+id/tv_preview_badge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:text="Лекция"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Выбранный день недели -->
+                    <LinearLayout
+                        android:id="@+id/layout_preview_day"
+                        android:layout_width="60dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ПН"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1"
+                            android:textColor="#FFFFFF"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 2. БЛОК "СОЗДАТЬ ТЕМУ" -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
                 app:cardBackgroundColor="@color/ui_surface"
                 app:cardCornerRadius="16dp"
@@ -70,11 +177,11 @@
                         android:layout_marginStart="16dp"
                         android:layout_marginBottom="12dp"
                         android:text="Создать тему"
-                        android:textColor="#8BC34A"
+                        android:textColor="#8E24AA"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
-                    <!-- 1. ПРЕДПРОСМОТР ТЕМ (СВЕТЛАЯ / ТЁМНАЯ) С ТОЧКАМИ ИНДИКАТОРАМИ -->
+                    <!-- Предпросмотр тем (Дневная / Тёмная) -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -82,7 +189,7 @@
                         android:orientation="horizontal"
                         android:paddingHorizontal="12dp">
 
-                        <!-- Дневная (Белая) -->
+                        <!-- Дневная -->
                         <LinearLayout
                             android:id="@+id/btn_mode_light"
                             android:layout_width="100dp"
@@ -117,7 +224,7 @@
                                 android:textSize="13sp" />
                         </LinearLayout>
 
-                        <!-- Тёмная (Черная) -->
+                        <!-- Тёмная -->
                         <LinearLayout
                             android:id="@+id/btn_mode_dark"
                             android:layout_width="100dp"
@@ -155,75 +262,16 @@
                     </LinearLayout>
 
                     <!-- Палитра цветных кружочков в стиле Telegram -->
-                    <HorizontalScrollView
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_theme_colors"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:scrollbars="none">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="12dp">
-
-                            <!-- Голубой -->
-                            <View
-                                android:id="@+id/color_cyan"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
-                                android:layout_margin="6dp"
-                                android:background="@drawable/bg_icon_rounded"
-                                android:backgroundTint="#4FC3F7" />
-
-                            <!-- Розовый -->
-                            <View
-                                android:id="@+id/color_pink"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
-                                android:layout_margin="6dp"
-                                android:background="@drawable/bg_icon_rounded"
-                                android:backgroundTint="#F06292" />
-
-                            <!-- Фиолетовый -->
-                            <View
-                                android:id="@+id/color_purple"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
-                                android:layout_margin="6dp"
-                                android:background="@drawable/bg_icon_rounded"
-                                android:backgroundTint="#BA68C8" />
-
-                            <!-- Салатовый -->
-                            <View
-                                android:id="@+id/color_light_green"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
-                                android:layout_margin="6dp"
-                                android:background="@drawable/bg_icon_rounded"
-                                android:backgroundTint="#9CCC65" />
-
-                            <!-- Бирюзовый -->
-                            <View
-                                android:id="@+id/color_teal"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
-                                android:layout_margin="6dp"
-                                android:background="@drawable/bg_icon_rounded"
-                                android:backgroundTint="#4DD0E1" />
-
-                            <!-- Желтый -->
-                            <View
-                                android:id="@+id/color_yellow"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
-                                android:layout_margin="6dp"
-                                android:background="@drawable/bg_icon_rounded"
-                                android:backgroundTint="#FFEE58" />
-
-                        </LinearLayout>
-                    </HorizontalScrollView>
+                        android:clipToPadding="false"
+                        android:orientation="horizontal"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

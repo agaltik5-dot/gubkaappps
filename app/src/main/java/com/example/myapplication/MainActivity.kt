@@ -12,7 +12,8 @@ import com.example.myapplication.ui.ProfileFragment
 import com.example.myapplication.ui.ScheduleFragment
 import com.example.myapplication.ui.SearchFragment
 import com.example.myapplication.ui.NewsFragment
-
+import android.content.Context
+import androidx.core.graphics.toColorInt
 import android.view.HapticFeedbackConstants
 import android.view.View
 
@@ -116,9 +117,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateNavTintByIndex(index: Int, animate: Boolean = true) {
-        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
-        // Достаем актуальный акцентный цвет (сейчас это глубокий синий)
-        val accentColorRes = R.color.ui_primary
+        val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+
+        // 1. Считываем сохраненный акцентный цвет из SharedPreferences
+        val accentColorHex = prefs.getString("accent_color", "#4FC3F7") ?: "#4FC3F7"
+        val activeColor = accentColorHex.toColorInt()
+
+        // Неактивный цвет иконки берем из ресурсов
+        val inactiveColor = ContextCompat.getColor(this, R.color.ui_text_main)
 
         val navToday = findViewById<ImageView>(R.id.nav_today)
         val navSearch = findViewById<ImageView>(R.id.nav_search)
@@ -127,25 +133,30 @@ class MainActivity : AppCompatActivity() {
 
         val navIcons = listOf(navToday, navSearch, navNews, navProfile)
 
+        // 2. Перекрашиваем иконки (выбранную в акцентный цвет, остальные — в стандартный)
         navIcons.forEachIndexed { i, icon ->
-            val color = if (i == index) accentColorRes else R.color.ui_text_main
-            icon?.setColorFilter(ContextCompat.getColor(this, color))
+            if (i == index) {
+                icon?.setColorFilter(activeColor)
+            } else {
+                icon?.setColorFilter(inactiveColor)
+            }
         }
 
-        // Анимация индикатора (нижней палки)
+        // 3. ПЕРЕКРАШИВАЕМ НИЖНЮЮ ПОЛОСКУ-СЛАЙДЕР В АКТУАЛЬНЫЙ ЦВЕТ
+        navSlider.background?.setTint(activeColor)
+
+        // 4. Анимация движения слайдера
         navSlider.post {
             val parentView = navSlider.parent as View
             val totalWidth = parentView.width - parentView.paddingLeft - parentView.paddingRight
             val tabWidth = totalWidth / 4f
 
-            // Изменение длины анимированной палки
             val indicatorWidth = tabWidth * 0.4f
 
             val params = navSlider.layoutParams
             params.width = indicatorWidth.toInt()
             navSlider.layoutParams = params
 
-            // Центрируем индикатор под иконкой
             val targetX = (index * tabWidth) + (tabWidth - indicatorWidth) / 2f
 
             if (animate) {
