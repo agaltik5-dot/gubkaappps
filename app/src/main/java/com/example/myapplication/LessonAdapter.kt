@@ -9,12 +9,20 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * Адаптер для списка элементов расписания (пары и перерывы).
  */
-class LessonAdapter(private val items: List<ScheduleItem>) : 
+class LessonAdapter(private var items: List<ScheduleItem>) : 
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private const val TYPE_LESSON = 0
         private const val TYPE_GAP = 1
+    }
+
+    /**
+     * Позволяет обновить список элементов без пересоздания адаптера.
+     */
+    fun updateItems(newItems: List<ScheduleItem>) {
+        items = newItems
+        notifyDataSetChanged()
     }
 
     /**
