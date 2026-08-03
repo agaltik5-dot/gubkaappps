@@ -26,8 +26,7 @@
                 android:id="@+id/img_profile_avatar"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                android:src="@drawable/ic_menu_account"
-                app:tint="@color/ui_primary" />
+                android:src="@drawable/ic_menu_account" />
 
             <TextView
                 android:id="@+id/tv_user_name"

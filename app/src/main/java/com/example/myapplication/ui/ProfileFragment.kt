@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
@@ -13,18 +14,37 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.signature.ObjectKey
 import com.example.myapplication.R
 import com.google.android.material.switchmaterial.SwitchMaterial
+import java.io.File
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
+
+    private var ivProfileAvatar: ImageView? = null
+    private var tvProfileName: TextView? = null
+    private var tvProfileSubtitle: TextView? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
-        // Инициализация элементов
+        // Инициализация элементов профиля
+        ivProfileAvatar = view.findViewById(R.id.img_profile_avatar)
+
+        // Находим текстовые поля Имени и Подписи (Факультет • Группа)
+        tvProfileName = view.findViewById(R.id.tv_user_name)
+            ?: view.findViewById(R.id.tv_student_name)
+        tvProfileSubtitle = view.findViewById(R.id.tv_user_sub)
+            ?: view.findViewById(R.id.tv_user_sub)
+
+        val btnStudentData = view.findViewById<LinearLayout>(R.id.btn_account_details)
+
         val btnNotificationsSection = view.findViewById<LinearLayout>(R.id.btn_notifications_section)
+        val btnNotes = view.findViewById<LinearLayout>(R.id.btn_notes)
         val btnThemeSettings = view.findViewById<LinearLayout>(R.id.btn_theme_settings)
         val btnLanguage = view.findViewById<LinearLayout>(R.id.btn_language)
         val tvCurrentLanguage = view.findViewById<TextView>(R.id.tv_current_language)
@@ -36,23 +56,32 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         val btnLinkLms = view.findViewById<LinearLayout>(R.id.btn_link_lms)
         val btnLinkMap = view.findViewById<LinearLayout>(R.id.btn_link_map)
 
-        // Исправлены типы с TextView на LinearLayout
         val btnResetSettings = view.findViewById<LinearLayout>(R.id.btn_reset_settings)
         val btnAbout = view.findViewById<LinearLayout>(R.id.btn_about)
 
-        // 1. Раздел "Уведомления и звуки"
-        btnNotificationsSection.setOnClickListener {
+        // Раздел "Данные студента"
+        btnStudentData?.setOnClickListener {
+            openStudentData()
+        }
+
+        // Раздел "Уведомления и звуки"
+        btnNotificationsSection?.setOnClickListener {
             Toast.makeText(requireContext(), "Раздел: Уведомления и звуки", Toast.LENGTH_SHORT).show()
         }
 
-        // 2. Раздел "Настройки темы" — ТЕПЕРЬ ОТКРЫВАЕТ ФРАГМЕНТ НАСТРОЕК
-        btnThemeSettings.setOnClickListener {
+        // Раздел "Заметки и Избранное"
+        btnNotes?.setOnClickListener {
+            Toast.makeText(requireContext(), "Раздел: Заметки и Избранное", Toast.LENGTH_SHORT).show()
+        }
+
+        // Раздел "Настройки темы"
+        btnThemeSettings?.setOnClickListener {
             openThemeSettings()
         }
 
-        // 3. Выбор языка
-        tvCurrentLanguage.text = prefs.getString("app_language", "Русский")
-        btnLanguage.setOnClickListener {
+        // Выбор языка
+        tvCurrentLanguage?.text = prefs.getString("app_language", "Русский")
+        btnLanguage?.setOnClickListener {
             val languages = arrayOf("Русский", "English", "Татарча", "Беларуская")
             AlertDialog.Builder(requireContext())
                 .setTitle("Язык / Language")
@@ -64,62 +93,54 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 .show()
         }
 
-        // 4. Логика тумблера и ползунка масштаба
-        // По умолчанию тумблер включен (true -> тумблер справа, ползунок активен)
+        // Масштаб
         val isDefaultScale = prefs.getBoolean("is_default_scale", true)
-        switchDefaultScale.isChecked = isDefaultScale
-
-        // Когда тумблер включен (справа) -> ползунок активен
-        // Когда выключен (слева) -> ползунок заблокирован и серый
-        seekBarScale.isEnabled = isDefaultScale
+        switchDefaultScale?.isChecked = isDefaultScale
+        seekBarScale?.isEnabled = isDefaultScale
 
         val savedScale = prefs.getInt("app_scale", 100)
-        tvScaleValue.text = "$savedScale%"
-        seekBarScale.progress = if (isDefaultScale) savedScale - 50 else 0
+        tvScaleValue?.text = "$savedScale%"
+        seekBarScale?.progress = if (isDefaultScale) savedScale - 50 else 0
 
-        switchDefaultScale.setOnCheckedChangeListener { _, isChecked ->
+        switchDefaultScale?.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit { putBoolean("is_default_scale", isChecked) }
 
-            // Если тумблер справа (isChecked = true) -> ползунок рабочий
-            // Если тумблер перевели влево (isChecked = false) -> блокируем (серый)
-            seekBarScale.isEnabled = isChecked
+            seekBarScale?.isEnabled = isChecked
 
             if (!isChecked) {
-                // Если тумблер перевели влево: ползунок сбрасывается влево и блокируется
-                seekBarScale.progress = 0
-                tvScaleValue.text = "100%"
+                seekBarScale?.progress = 0
+                tvScaleValue?.text = "100%"
                 prefs.edit { putInt("app_scale", 100) }
             } else {
-                // При возврате тумблера вправо возвращаем 100% (середина)
-                seekBarScale.progress = 50
-                tvScaleValue.text = "100%"
+                seekBarScale?.progress = 50
+                tvScaleValue?.text = "100%"
             }
         }
 
-        seekBarScale.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        seekBarScale?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (switchDefaultScale.isChecked) {
+                if (switchDefaultScale?.isChecked == true) {
                     val currentScale = 50 + progress
-                    tvScaleValue.text = "$currentScale%"
+                    tvScaleValue?.text = "$currentScale%"
                 }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                if (switchDefaultScale.isChecked) {
+                if (switchDefaultScale?.isChecked == true) {
                     val finalScale = 50 + (seekBar?.progress ?: 50)
                     prefs.edit { putInt("app_scale", finalScale) }
                 }
             }
         })
 
-        // 5. Внешние ссылки
-        btnLinkLms.setOnClickListener { openWebLink("https://edu.gubkin.ru") }
-        btnLinkMap.setOnClickListener { openWebLink("https://www.gubkin.ru/about_the_university/campus_map/") }
+        // Ссылки
+        btnLinkLms?.setOnClickListener { openWebLink("https://edu.gubkin.ru") }
+        btnLinkMap?.setOnClickListener { openWebLink("https://www.gubkin.ru/about_the_university/campus_map/") }
 
-        // 6. Сброс
-        btnResetSettings.setOnClickListener {
+        // Сброс
+        btnResetSettings?.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle("Сброс настроек")
                 .setMessage("Вы уверены, что хотите очистить кэш и настройки?")
@@ -132,18 +153,67 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 .show()
         }
 
-        // 7. О программе
-        btnAbout.setOnClickListener {
+        // О программе
+        btnAbout?.setOnClickListener {
             Toast.makeText(requireContext(), "Приложение Расписание v1.0", Toast.LENGTH_SHORT).show()
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadAvatar()
+        loadProfileData() // Загружаем свежие имя, фамилию, факультет и группу
+    }
+
+    private fun loadProfileData() {
+        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+
+        val firstName = prefs.getString("user_first_name", "Иван")
+        val lastName = prefs.getString("user_last_name", "Иванов")
+        val faculty = prefs.getString("user_faculty", "Инженерной механики")
+        val group = prefs.getString("user_group", "МР-24-10")
+
+        // Обновляем Имя и Фамилию
+        tvProfileName?.text = "$firstName $lastName"
+
+        // Обновляем подпись под именем
+        tvProfileSubtitle?.text = "$faculty • $group"
+    }
+
+    private fun loadAvatar() {
+        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val savedPath = prefs.getString("profile_avatar_path", null)
+
+        ivProfileAvatar?.let { imageView ->
+            if (!savedPath.isNullOrEmpty()) {
+                val file = File(savedPath)
+                if (file.exists()) {
+                    // Снимаем синий тинт, чтобы отобразить реальное фото
+                    imageView.imageTintList = null
+
+                    Glide.with(this)
+                        .load(file)
+                        .signature(ObjectKey(file.lastModified().toString()))
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true)
+                        .circleCrop()
+                        .into(imageView)
+                }
+            }
+        }
+    }
+
+    private fun openStudentData() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, StudentDataFragment())
+            .addToBackStack(null)
+            .commit()
+    }
+
     private fun openThemeSettings() {
         parentFragmentManager.beginTransaction()
-            // Переходим в ThemeSettingsFragment
-            // Замени R.id.fragment_container на ID твоего FrameLayout / FragmentContainerView из activity_main.xml
             .replace(R.id.fragment_container, ThemeSettingsFragment())
-            .addToBackStack(null) // Чтобы работал возврат назад по стрелке или кнопке "Назад" телефона
+            .addToBackStack(null)
             .commit()
     }
 
