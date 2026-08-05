@@ -35,7 +35,7 @@
             android:scaleType="fitCenter"
             android:translationY="-100dp"
             android:src="@drawable/img_empty_state"
-            tools:src="@drawable/ic_launcher_foreground" />
+            tools:src="@drawable/gubkin_logo" />
 
         <TextView
             android:layout_width="wrap_content"
