@@ -18,8 +18,9 @@
     <!-- Цвет для ползунка меню (тёмная тема) -->
     <color name="ui_slider_bg">#334D9FFF</color>
     <!-- Цвета для типов занятий (темная тема) -->
-    <color name="type_lecture">#4285F4</color>
-    <color name="type_seminar">#00A36D</color>
+    <color name="type_lecture">#BB86FC</color>
+    <color name="type_seminar">#4DD0E1</color>
     <color name="type_lab">#F59E0B</color>
-    <color name="type_other">#8C9196</color>
+    <color name="type_other">#94A3B8</color>
+    <color name="ui_chip_bg">#2C2C2C</color>
 </resources>

@@ -1,97 +1,314 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="0dp"
+    android:layout_marginBottom="16dp"
     android:background="@drawable/bg_card_floating"
-    android:elevation="4dp"
+    android:elevation="6dp"
     android:orientation="horizontal"
-    android:padding="30dp">
+    android:paddingVertical="25dp"
+    android:paddingStart="12dp"
+    android:paddingEnd="24dp">
 
-    <!-- Time and Indicator 1221122112122121-->
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:gravity="center"
+        android:gravity="center_horizontal"
+        android:minWidth="40dp"
+        android:layout_marginStart="13dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/tv_start_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/_08_00"
+            android:text="08:30"
             android:textColor="@color/ui_text_main"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
-        <!-- Floating Gradient Indicator -->
         <View
             android:id="@+id/v_indicator"
-            android:layout_width="4dp"
-            android:layout_height="28dp"
-            android:layout_marginVertical="8dp"
-            android:background="@drawable/bg_day_active" />
+            android:layout_width="5dp"
+            android:layout_height="0dp"
+            android:layout_marginVertical="4dp"
+            android:layout_weight="1"
+            android:alpha="0.9"
+            android:background="@drawable/bg_day_active"
+            android:minHeight="45dp" />
 
         <TextView
             android:id="@+id/tv_end_time"
-            android:layout_width="36dp"
-            android:layout_height="22dp"
-            android:text="09:30"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10:05"
             android:textColor="@color/ui_text_sub"
-            android:textSize="12sp" />
-
+            android:textSize="13sp" />
     </LinearLayout>
 
-    <!-- Content -->
     <LinearLayout
+        android:id="@+id/layout_contents"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_weight="1"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_subject"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Я люблю Евдокимова и ДИДЕНКО"
-            android:textColor="@color/ui_text_main"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Лекция"
-            android:textColor="@color/ui_primary"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
+        <!-- SUBGROUP 1 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/block_subgroup_1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@drawable/ic_lesson_teacher"
-                app:tint="@color/ui_text_sub" />
+            android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/tv_details"
+                android:id="@+id/tv_subgroup_label_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="А-201 · Соколов А.В."
-                android:textColor="@color/ui_text_sub"
-                android:textSize="13sp" />
-        </LinearLayout>
+                android:text="1 подгруппа"
+                android:textAllCaps="true"
+                android:textColor="@color/ui_primary"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_subject_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Название предмета"
+                android:textColor="@color/ui_text_main"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:lineSpacingExtra="2dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_subgroup_label_1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_type_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="ЛЕКЦИЯ"
+                android:textColor="@color/ui_primary"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"
+                app:layout_constraintTop_toBottomOf="@id/tv_subject_1"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <!-- SMART FLOW FOR ROOM AND TEACHER -->
+            <androidx.constraintlayout.helper.widget.Flow
+                android:id="@+id/flow_details_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:flow_horizontalBias="0"
+                app:flow_horizontalGap="12dp"
+                app:flow_horizontalStyle="packed"
+                app:flow_verticalGap="8dp"
+                app:flow_wrapMode="aligned"
+                app:constraint_referenced_ids="container_room_1,container_teacher_1"
+                app:layout_constraintTop_toBottomOf="@id/tv_type_1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/container_room_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_day_inactive"
+                android:backgroundTint="@color/ui_chip_bg"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
+                tools:ignore="MissingConstraints">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_map"
+                    app:tint="@color/ui_text_sub"
+                    android:contentDescription="Room" />
+
+                <TextView
+                    android:id="@+id/tv_room_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="403"
+                    android:textColor="@color/ui_text_main"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:maxWidth="160dp"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- Teacher Container -->
+            <LinearLayout
+                android:id="@+id/container_teacher_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                tools:ignore="MissingConstraints">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_lesson_teacher"
+                    app:tint="@color/ui_text_sub"
+                    android:contentDescription="Teacher" />
+
+                <TextView
+                    android:id="@+id/tv_teacher_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Иванов И.И."
+                    android:textColor="@color/ui_text_sub"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- DIVIDER -->
+        <View
+            android:id="@+id/v_subgroup_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="18dp"
+            android:background="@color/ui_divider"
+            android:alpha="0.5"
+            android:visibility="gone" />
+
+        <!-- SUBGROUP 2 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/block_subgroup_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_subgroup_label_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:text="2 подгруппа"
+                android:textAllCaps="true"
+                android:textColor="@color/ui_primary"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_subject_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Название предмета"
+                android:textColor="@color/ui_text_main"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:lineSpacingExtra="2dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_subgroup_label_2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_type_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="СЕМИНАР"
+                android:textColor="@color/ui_primary"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"
+                app:layout_constraintTop_toBottomOf="@id/tv_subject_2"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <!-- SMART FLOW FOR ROOM AND TEACHER (SUB 2) -->
+            <androidx.constraintlayout.helper.widget.Flow
+                android:id="@+id/flow_details_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:flow_horizontalBias="0"
+                app:flow_horizontalGap="12dp"
+                app:flow_horizontalStyle="packed"
+                app:flow_verticalGap="8dp"
+                app:flow_wrapMode="aligned"
+                app:constraint_referenced_ids="container_room_2,container_teacher_2"
+                app:layout_constraintTop_toBottomOf="@id/tv_type_2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/container_room_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_day_inactive"
+                android:backgroundTint="@color/ui_chip_bg"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
+                tools:ignore="MissingConstraints">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_map"
+                    app:tint="@color/ui_text_sub"
+                    android:contentDescription="Room" />
+
+                <TextView
+                    android:id="@+id/tv_room_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="1321"
+                    android:textColor="@color/ui_text_main"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:maxWidth="160dp"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- Teacher Container 2 -->
+            <LinearLayout
+                android:id="@+id/container_teacher_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                tools:ignore="MissingConstraints">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_lesson_teacher"
+                    app:tint="@color/ui_text_sub"
+                    android:contentDescription="Teacher" />
+
+                <TextView
+                    android:id="@+id/tv_teacher_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Петров П.П."
+                    android:textColor="@color/ui_text_sub"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
 </LinearLayout>

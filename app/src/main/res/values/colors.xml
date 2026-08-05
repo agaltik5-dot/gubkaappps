@@ -27,8 +27,9 @@
     <color name="ui_slider_bg">#1A0061A4</color>
 
     <!-- Цвета для типов занятий -->
-    <color name="type_lecture">#0061A4</color>
-    <color name="type_seminar">#00875A</color>
+    <color name="type_lecture">#7C3AED</color>
+    <color name="type_seminar">#0891B2</color>
     <color name="type_lab">#D97706</color>
-    <color name="type_other">#70777C</color>
+    <color name="type_other">#475569</color>
+    <color name="ui_chip_bg">#F0F0F0</color>
 </resources>

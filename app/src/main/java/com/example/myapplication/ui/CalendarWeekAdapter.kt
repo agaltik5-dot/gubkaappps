@@ -18,6 +18,17 @@ class CalendarWeekAdapter(
 ) : RecyclerView.Adapter<CalendarWeekAdapter.WeekViewHolder>() {
 
     private var selectedDate: Calendar? = null
+    private var recyclerView: RecyclerView? = null
+
+    // Акцентный цвет темы
+    private var accentColor: Int = Color.BLUE
+
+    fun updateAccentColor(color: Int) {
+        if (this.accentColor != color) {
+            this.accentColor = color
+            recyclerView?.post { notifyDataSetChanged() }
+        }
+    }
 
     /**
      * Обновляет выбранную дату.
@@ -25,8 +36,8 @@ class CalendarWeekAdapter(
     fun updateSelectedDate(newDate: Calendar) {
         if (selectedDate == null || !isSameDay(selectedDate!!, newDate)) {
             selectedDate = newDate
-            // Принудительное обновление всех видимых элементов для корректной подсветки
-            notifyDataSetChanged()
+            // Вызываем обновление через post для безопасности
+            recyclerView?.post { notifyDataSetChanged() }
         }
     }
 
@@ -42,6 +53,16 @@ class CalendarWeekAdapter(
             view.findViewById<LinearLayout>(R.id.day_5),
             view.findViewById<LinearLayout>(R.id.day_6)
         )
+    }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        this.recyclerView = recyclerView
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        this.recyclerView = null
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeekViewHolder {
@@ -71,7 +92,8 @@ class CalendarWeekAdapter(
             
             container.setOnClickListener {
                 if (!isSelected) {
-                    updateSelectedDate(currentDay)
+                    selectedDate = currentDay
+                    notifyDataSetChanged()
                     onDayClick(currentDay)
                 }
             }
@@ -83,13 +105,14 @@ class CalendarWeekAdapter(
         when {
             isSelected -> {
                 view.setBackgroundResource(R.drawable.bg_day_active)
+                view.background?.setTint(accentColor)
                 label.setTextColor(Color.WHITE)
                 number.setTextColor(Color.WHITE)
                 view.elevation = 8f
             }
             isToday -> {
                 view.setBackgroundResource(R.drawable.bg_day_today)
-                label.setTextColor(ContextCompat.getColor(context, R.color.ui_primary))
+                label.setTextColor(accentColor)
                 number.setTextColor(ContextCompat.getColor(context, R.color.ui_text_main))
                 view.elevation = 0f
             }

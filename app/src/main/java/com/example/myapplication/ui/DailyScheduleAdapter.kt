@@ -47,6 +47,7 @@ class DailyScheduleAdapter(
             holder.emptyState.visibility = View.GONE
             
             // Оптимизация: обновляем адаптер вместо создания нового
+            // Оптимизация: обновляем адаптер вместо создания нового
             if (holder.lessonAdapter == null) {
                 holder.lessonAdapter = LessonAdapter(dayItems)
                 holder.recyclerView.adapter = holder.lessonAdapter
