@@ -66,7 +66,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
         // Раздел "Уведомления и звуки"
         btnNotificationsSection?.setOnClickListener {
-            Toast.makeText(requireContext(), "Раздел: Уведомления и звуки", Toast.LENGTH_SHORT).show()
+            openNotificationsSettings()
         }
 
         // Раздел "Заметки и Избранное"
@@ -206,6 +206,13 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     private fun openStudentData() {
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, StudentDataFragment())
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun openNotificationsSettings() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, NotificationsSettingsFragment())
             .addToBackStack(null)
             .commit()
     }
