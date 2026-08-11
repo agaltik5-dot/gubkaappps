@@ -8,4 +8,16 @@
     <style name="CircularImageView">
         <item name="cornerSize">50%</item>
     </style>
+
+    <!-- СТИЛЬ ДЛЯ ЗАКРУГЛЕНИЯ ПОЛЕЙ ВВОДА -->
+    <style name="RoundedInputBox">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <!-- Анимация для выпадающего списка -->
+    <style name="SpinnerPopupAnimation">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
 </resources>

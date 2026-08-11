@@ -15,16 +15,13 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingBottom="16dp">
+        android:paddingBottom="2dp">
 
-        <!-- Иконка/Логотип -->
-
-        <!-- Текстовый блок шапки -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/iv_university_logo"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:layout_marginEnd="12dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
             android:scaleType="centerCrop"
             android:src="@drawable/gubkin_logo"
             app:shapeAppearanceOverlay="@style/CircularImageView" />
@@ -37,10 +34,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-bold"
+                android:fontFamily="sans-serif-black"
                 android:text="Расписание занятий"
                 android:textColor="@color/ui_text_main"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -52,147 +49,437 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 2. Вкладки (Факультеты / Преподаватели / Аудитории) -->
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_layout_search"
+    <!-- 2. Кастомный переключатель вкладок (Segmented Control) -->
+    <FrameLayout
+        android:id="@+id/tab_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        app:tabIndicatorColor="@color/ui_primary"
-        app:tabIndicatorHeight="3dp"
-        app:tabMode="fixed"
-        app:tabSelectedTextColor="@color/ui_primary"
-        app:tabTextColor="@color/ui_text_sub">
+        android:layout_height="52dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_tab_container">
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Факультеты" />
+        <!-- Кнопки вкладок -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:weightSum="3">
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Преподаватели" />
+            <TextView
+                android:id="@+id/tab_faculties"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Факультеты"
+                android:textColor="@color/ui_primary"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif-medium"
+                android:clickable="true"
+                android:focusable="true" />
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Аудитории" />
-    </com.google.android.material.tabs.TabLayout>
+            <TextView
+                android:id="@+id/tab_teachers"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Преподаватели"
+                android:textColor="@color/ui_text_sub"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif-medium"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/tab_rooms"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Аудитории"
+                android:textColor="@color/ui_text_sub"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif-medium"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </LinearLayout>
+
+        <!-- Двигающийся ползунок (Теперь поверх кнопок для 100% видимости) -->
+        <View
+            android:id="@+id/tab_indicator"
+            android:layout_width="40dp"
+            android:layout_height="3dp"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="5.5dp"
+            android:background="@drawable/bg_tab_indicator" />
+    </FrameLayout>
 
     <!-- 3. Карточка с фильтрами (Семестр, Факультет, Группа) -->
-    <androidx.cardview.widget.CardView
+    <FrameLayout
+        android:id="@+id/search_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        app:cardBackgroundColor="@color/ui_surface"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp">
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_search_card"
+        android:elevation="0dp">
 
         <LinearLayout
+            android:id="@+id/inner_search_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="20dp">
 
-            <!-- Семестр -->
+            <!-- Семестр (Всегда виден) -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Семестр"
+                android:text="СЕМЕСТР"
                 android:textColor="@color/ui_text_sub"
-                android:textSize="11sp" />
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1" />
 
-            <Spinner
-                android:id="@+id/spinner_semester"
+            <LinearLayout
+                android:id="@+id/box_semester"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:spinnerMode="dropdown" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_outlined_field"
+                android:orientation="vertical">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_semester"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:boxBackgroundColor="@android:color/transparent"
+                    app:boxStrokeWidth="0dp"
+                    app:boxStrokeWidthFocused="0dp"
+                    app:boxStrokeColor="@android:color/transparent"
+                    app:hintEnabled="false"
+                    app:endIconTint="@color/ui_primary"
+                    app:shapeAppearanceOverlay="@style/RoundedInputBox">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/et_semester"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:paddingVertical="12dp"
+                        android:paddingHorizontal="20dp"
+                        android:gravity="start|center_vertical"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/ui_text_main"
+                        android:overlapAnchor="false"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:background="@null"
+                        android:dropDownHeight="0dp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:id="@+id/wrapper_semester_inline"
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:visibility="gone"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="8dp">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_semester_inline"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:overScrollMode="never"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                    <!-- Custom Scroll Indicator on the Right -->
+                    <View
+                        android:id="@+id/indicator_semester"
+                        android:layout_width="4dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="top"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_scroll_thumb"
+                        android:visibility="invisible" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="@color/ui_divider"
+                android:alpha="0.5" />
 
             <!-- Блок Факультет / Группа -->
             <LinearLayout
                 android:id="@+id/layout_faculty_selectors"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                android:weightSum="2">
+                android:orientation="vertical">
 
+                <!-- ФАКУЛЬТЕТ -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:id="@+id/container_faculty"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1.2"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Факультет"
+                        android:text="ФАКУЛЬТЕТ"
                         android:textColor="@color/ui_text_sub"
-                        android:textSize="11sp" />
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1" />
 
-                    <Spinner
-                        android:id="@+id/spinner_faculty"
+                    <LinearLayout
+                        android:id="@+id/box_faculty"
                         android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                        android:spinnerMode="dropdown" />
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:background="@drawable/bg_outlined_field"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/til_faculty"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:boxBackgroundColor="@android:color/transparent"
+                            app:boxStrokeWidth="0dp"
+                            app:boxStrokeWidthFocused="0dp"
+                            app:boxStrokeColor="@android:color/transparent"
+                            app:hintEnabled="false"
+                            app:endIconTint="@color/ui_primary"
+                            app:shapeAppearanceOverlay="@style/RoundedInputBox">
+
+                            <AutoCompleteTextView
+                                android:id="@+id/et_faculty"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textNoSuggestions"
+                                android:paddingVertical="12dp"
+                                android:paddingHorizontal="20dp"
+                                android:gravity="start|center_vertical"
+                                android:hint="Выберите факультет"
+                                android:textColorHint="@color/ui_text_sub"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="@color/ui_text_main"
+                                android:overlapAnchor="false"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:focusableInTouchMode="true"
+                                android:background="@null"
+                                android:dropDownHeight="0dp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <LinearLayout
+                            android:id="@+id/wrapper_faculty_inline"
+                            android:layout_width="match_parent"
+                            android:layout_height="180dp"
+                            android:visibility="gone"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="8dp">
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/rv_faculty_inline"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:overScrollMode="never"
+                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                            <!-- Custom Scroll Indicator on the Right -->
+                            <View
+                                android:id="@+id/indicator_faculty"
+                                android:layout_width="4dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="top"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginStart="8dp"
+                                android:background="@drawable/bg_scroll_thumb"
+                                android:visibility="invisible" />
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
 
+                <!-- ГРУППА -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:id="@+id/container_group"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.8"
-                    android:orientation="vertical">
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Группа"
+                        android:text="ГРУППА"
                         android:textColor="@color/ui_text_sub"
-                        android:textSize="11sp" />
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1" />
 
-                    <Spinner
-                        android:id="@+id/spinner_group"
+                    <LinearLayout
+                        android:id="@+id/box_group"
                         android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                        android:spinnerMode="dropdown" />
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:background="@drawable/bg_outlined_field"
+                        android:orientation="vertical">
+
+                            <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/til_group"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:boxBackgroundColor="@android:color/transparent"
+                            app:boxStrokeWidth="0dp"
+                            app:boxStrokeWidthFocused="0dp"
+                            app:boxStrokeColor="@android:color/transparent"
+                            app:hintEnabled="false"
+                            app:endIconTint="@color/ui_primary"
+                            app:shapeAppearanceOverlay="@style/RoundedInputBox">
+
+                            <AutoCompleteTextView
+                                android:id="@+id/et_group"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textNoSuggestions"
+                                android:paddingVertical="12dp"
+                                android:paddingHorizontal="20dp"
+                                android:gravity="start|center_vertical"
+                                android:hint="Выберите группу"
+                                android:textColorHint="@color/ui_text_sub"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="@color/ui_text_main"
+                                android:overlapAnchor="false"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:focusableInTouchMode="true"
+                                android:background="@null"
+                                android:dropDownHeight="0dp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <LinearLayout
+                            android:id="@+id/wrapper_group_inline"
+                            android:layout_width="match_parent"
+                            android:layout_height="180dp"
+                            android:visibility="gone"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="8dp">
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/rv_group_inline"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:overScrollMode="never"
+                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                            <!-- Custom Scroll Indicator on the Right -->
+                            <View
+                                android:id="@+id/indicator_group"
+                                android:layout_width="4dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="top"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginStart="8dp"
+                                android:background="@drawable/bg_scroll_thumb"
+                                android:visibility="invisible" />
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
+
+                <Button
+                    android:id="@+id/btn_select_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="20dp"
+                    android:text="Выбрать эту группу"
+                    android:textAllCaps="false"
+                    android:backgroundTint="@color/ui_primary"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:visibility="gone"
+                    app:cornerRadius="20dp"
+                    app:elevation="0dp" />
             </LinearLayout>
 
-            <!-- Текстовый поиск (по умолчанию скрыт) -->
-            <EditText
-                android:id="@+id/et_search_query"
+            <!-- Текстовый поиск (Преподаватели / Аудитории) -->
+            <LinearLayout
+                android:id="@+id/layout_query_search"
                 android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_day_active"
-                android:hint="Поиск..."
-                android:paddingHorizontal="12dp"
-                android:textColor="@color/ui_text_main"
-                android:textSize="14sp"
-                android:visibility="gone" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
 
-            <Button
-                android:id="@+id/btn_select_group"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="16dp"
-                android:text="Выбрать эту группу"
-                android:textAllCaps="false"
-                android:backgroundTint="@color/ui_primary"
-                android:textColor="@color/white"
-                app:cornerRadius="8dp" />
+                <TextView
+                    android:id="@+id/tv_query_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ПОИСК"
+                    android:gravity="start"
+                    android:textColor="@color/ui_text_sub"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_search_query"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeColor="@color/ui_divider"
+                    app:hintEnabled="false"
+                    app:shapeAppearanceOverlay="@style/RoundedInputBox"
+                    app:startIconDrawable="@drawable/ic_formenu_search"
+                    app:startIconTint="@color/ui_text_sub">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_search_query"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Введите текст..."
+                        android:inputType="textPersonName"
+                        android:gravity="start|center_vertical"
+                        android:paddingVertical="12dp"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/ui_text_main" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </FrameLayout>
 
     <!-- 4. Список найденных пар / Заглушка "Расписание отсутствует" -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_search_results"
+    <LinearLayout
+        android:id="@+id/container_results_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_search_results"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never" />
+    </LinearLayout>
 
 </LinearLayout>
