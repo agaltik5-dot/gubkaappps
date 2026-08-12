@@ -1,0 +1,10 @@
+- [x] **UI Update: Refresh Support**
+    - [x] Add `SwipeRefreshLayout` to `fragment_search.xml`
+- [x] **Logic Update: Structural Cleanup**
+    - [x] Update `injectCustomCss()` with precise structural selectors
+    - [x] Implement `SwipeRefreshLayout` logic in `SearchFragment.kt`
+    - [x] Refine `MutationObserver` to be less aggressive but more accurate
+- [x] **Verification**
+    - [x] Build and run the app
+    - [x] Verify content visibility and structural cleanup
+    - [x] Verify "Pull to Refresh" functionality

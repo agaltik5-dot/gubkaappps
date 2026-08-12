@@ -112,7 +112,7 @@ class NotificationsSettingsFragment : Fragment(R.layout.fragment_notifications_s
         }
 
         val notification = NotificationCompat.Builder(requireContext(), channelId)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_notifications)
             .setContentTitle("Расписание пар")
             .setContentText("Напоминания о парах успешно включены!")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
