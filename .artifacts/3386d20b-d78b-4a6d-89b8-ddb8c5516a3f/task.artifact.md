@@ -1,0 +1,8 @@
+- [ ] Создать жирную стрелку (`ic_arrow_drop_down_bold.xml`)
+- [ ] Обновить `fragment_schedule.xml` (черная жирная стрелка)
+- [ ] Обновить `dialog_recent_items.xml` (ширина match_parent, без отступов по бокам)
+- [ ] Обновить `item_recent_access.xml` (текст 16sp, отступы 12dp)
+- [ ] Обновить `popup_enter.xml` (ускорить до 200мс)
+- [ ] Обновить `ScheduleFragment.kt` (ширина по анкору, xOffset = 0)
+- [ ] Исправить загрузку новостей в `NewsFragment.kt`
+- [ ] Проверить результат
