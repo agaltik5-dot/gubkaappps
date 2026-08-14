@@ -16,6 +16,9 @@ import android.content.Context
 import androidx.core.graphics.toColorInt
 import android.view.HapticFeedbackConstants
 import android.view.View
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import android.os.Build
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,11 +32,20 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         navSlider = findViewById(R.id.nav_slider)
+        val bottomBlur = findViewById<View>(R.id.view_bottom_blur)
 
         // Настройка отступов для системных баров
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            // Убираем нижний паддинг, чтобы контент заходил под навбар
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
+            
+            // Устанавливаем высоту размытия равной высоте навбара
+            bottomBlur.layoutParams.height = systemBars.bottom
+            bottomBlur.requestLayout()
+            
+            applyBlurEffect(bottomBlur, 45f)
+            
             insets
         }
 
@@ -107,6 +119,19 @@ class MainActivity : AppCompatActivity() {
         updateNavTintByIndex(index, animate)
     }
 
+    /**
+     * Public method to allow fragments to request a tab switch with an optional action.
+     */
+    fun switchToTab(index: Int, action: (() -> Unit)? = null) {
+        openTab(index)
+        if (action != null) {
+            // Give some time for the fragment to be swapped and its view created
+            findViewById<View>(R.id.fragment_container).postDelayed({
+                action.invoke()
+            }, 100)
+        }
+    }
+
     private fun replaceFragment(fragment: Fragment, enterAnim: Int = 0, exitAnim: Int = 0) {
         val transaction = supportFragmentManager.beginTransaction()
         if (enterAnim != 0 && exitAnim != 0) {
@@ -168,6 +193,13 @@ class MainActivity : AppCompatActivity() {
             } else {
                 navSlider.translationX = targetX
             }
+        }
+    }
+
+    private fun applyBlurEffect(view: View, radius: Float) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val blurEffect = RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.CLAMP)
+            view.setRenderEffect(blurEffect)
         }
     }
 }

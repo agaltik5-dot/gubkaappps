@@ -1,27 +1,29 @@
-# Native-Style Official Schedule Integration Walkthrough
+# Expandable Header Widget Walkthrough
 
-I have successfully updated the **Search** tab to provide a "proper" native-feeling experience for the official schedule portal.
+I have updated the **Schedule** tab to include a modern, expandable header widget that replaces the previous floating button.
 
-## Changes Made
+## New UI Experience
 
-### 1. Structural Cleanup & Native Look
-- **Precise Targeting**: Instead of searching for keywords, the script now targets specific CSS classes (`.navbar`, `.site-header`, `.page-header`) and tags (`header`, `footer`) to remove the site's frame.
-- **Header Removal**: Explicitly hides `h1` tags containing "Расписание" and other site-wide titles that duplicated the app's native header.
-- **Content Optimization**: Adjusted margins and paddings of the web container to ensure the content starts immediately below the app's tabs, removing unsightly white spaces.
-- **Theme Sync**: The WebView background now perfectly matches the app's theme (`@color/ui_bg`), preventing flashes during page transitions.
+### 1. Expandable Header Card
+- **Unified Design**: The "Schedule" title and group name are now contained within a sleek, rounded `MaterialCardView`.
+- **Visual Cues**: An arrow icon on the right indicates that the header is interactive and can be expanded.
+- **Interactive Dropdown**: Clicking anywhere on the header card triggers a smooth "accordion" expansion downwards.
 
-### 2. Modern Mobile Features
-- **Pull-to-Refresh**: Added a native `SwipeRefreshLayout`. Users can now pull down on the list to manually reload the schedule data from the official site.
-- **Loading State Sync**: The refresh indicator and the progress bar are synchronized to provide consistent visual feedback.
+### 2. Quick-Access Dropdown
+- **Recent Groups**: When expanded, a list of your recently viewed groups appears directly within the header.
+- **Seamless Switching**: Tapping a group in the list instantly updates the schedule and collapses the menu back to its compact state.
+- **Smooth Animations**: Used `TransitionManager` to ensure the expansion and rotation of the arrow look fluid and professional.
 
-### 3. Reliability & Performance
-- **Smart MutationObserver**: The script now uses a more efficient cleanup function that triggers only when the DOM changes, ensuring that dynamically loaded content in the SPA is cleaned up without affecting performance or hiding actual schedule data.
+### 3. Decorative Background (Maintained)
+- **Aesthetic Depth**: The large, semi-transparent "РАСПИСАНИЕ" and "ГРУППЫ" text remains in the background, providing context and style while the header card floats above it.
+
+## Technical Improvements
+- **Optimized Layout**: Removed the separate "Quick Access" widget to reduce UI clutter.
+- **Robust Logic**: The header now handles its own state (expanded/collapsed) and refreshes the schedule data efficiently when a new group is selected.
 
 ## Verification Results
-
 - **Build Status**: ✅ `SUCCESS`
-- **Dependency Integration**: ✅ `SwipeRefreshLayout` added and synced.
-- **UI Interaction**: Verified that the app's native tabs ("Faculties", "Teachers", "Rooms") still control the WebView, while the website's own buttons are hidden.
+- **UI Interaction**: Verified smooth expansion/collapse logic and correct group switching.
 
-> [!NOTE]
-> The search tab now provides a clean, focused view of the university's data, making it feel like an integrated feature rather than a browser window.
+> [!TIP]
+> Just tap on the header area (where it says "Расписание") to quickly see your recent groups and switch between them without leaving the screen!

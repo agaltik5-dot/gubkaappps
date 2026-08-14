@@ -3,12 +3,15 @@ package com.example.myapplication.ui
 import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.transition.TransitionManager
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
+import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.widget.PopupMenu
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.toColorInt
@@ -16,12 +19,16 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.example.myapplication.R
 import com.example.myapplication.ScheduleItem
+import com.example.myapplication.data.RecentSelection
 import com.example.myapplication.data.ScheduleRepository
+import com.example.myapplication.data.SelectionType
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import android.os.Build
 
 class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
 
@@ -29,11 +36,17 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
     private var headerViewPager: ViewPager2? = null
     private var headerAdapter: CalendarWeekAdapter? = null
 
+    private lateinit var cardHeader: View
+    private lateinit var layoutRecentHistory: View
+    private lateinit var viewOverlayDim: View
+    private lateinit var containerRecentItems: LinearLayout
+    private var isExpanded = false
+
     private lateinit var scheduleRepository: ScheduleRepository
     private var currentGroupId = -1
     private var currentGroupCode = ""
 
-    private val MAX_DAYS = 2100
+    private val MAX_DAYS = 2100 
     private val START_INDEX = MAX_DAYS / 2
     private val TOTAL_WEEKS = MAX_DAYS / 7
 
@@ -49,16 +62,19 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        
         scheduleRepository = ScheduleRepository(requireContext())
         loadSavedGroup()
 
         initCalendarAnchors()
 
-        setupHeaderCalendar(view)
+        setupHeaderCard(view)
         setupMonthNavigation(view)
         setupViewPagers(view)
-
+        
+        val boundaryBlur = view.findViewById<View>(R.id.view_boundary_blur)
+        applyBlurEffect(boundaryBlur, 100f)
+        
         applyThemeColor()
     }
 
@@ -89,7 +105,7 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         val today = getTodayNoon()
         firstDayOfCalendar = today.clone() as Calendar
         firstDayOfCalendar.add(Calendar.DAY_OF_YEAR, -START_INDEX)
-
+        
         weekAnchor = firstDayOfCalendar.clone() as Calendar
         val dayShift = getDayIndexForCalendar(weekAnchor)
         weekAnchor.add(Calendar.DAY_OF_YEAR, -dayShift)
@@ -99,37 +115,31 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         currentGroupId = prefs.getInt("key_group_id", 10045)
         currentGroupCode = prefs.getString("key_group_code", "ХТМ-25-04") ?: "ХТМ-25-04"
+        
+        // При первой загрузке тоже сохраняем в недавние
+        saveToRecentFixed(currentGroupId, currentGroupCode, SelectionType.GROUP)
     }
 
-    private fun saveSelectedDate(date: Calendar) {
-        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-        prefs.edit {
-            putLong("key_selected_date_millis", date.timeInMillis)
+    private fun setupHeaderCard(view: View) {
+        cardHeader = view.findViewById(R.id.card_header)
+        layoutRecentHistory = view.findViewById(R.id.layout_recent_history)
+        viewOverlayDim = view.findViewById(R.id.view_overlay_dim)
+        containerRecentItems = view.findViewById(R.id.container_recent_items)
+
+        val layoutHeaderMain = view.findViewById<View>(R.id.layout_header_main)
+        layoutHeaderMain.setOnClickListener {
+            toggleHistoryExpansion()
         }
-    }
+        
+        viewOverlayDim.setOnClickListener {
+            if (isExpanded) toggleHistoryExpansion()
+        }
 
-    private fun getSavedDate(): Calendar? {
-        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-        val millis = prefs.getLong("key_selected_date_millis", -1)
-        return if (millis != -1L) {
-            val cal = Calendar.getInstance()
-            cal.timeInMillis = millis
-            cal
-        } else null
-    }
-
-    private fun setupHeaderCalendar(view: View) {
         val btnOpenCalendar = view.findViewById<View>(R.id.btn_open_calendar)
-        val titleSelector = view.findViewById<View>(R.id.layout_title_selector)
+        val tvHeaderTitle = view.findViewById<TextView>(R.id.tv_schedule_title)
+        tvHeaderTitle?.text = "Расписание $currentGroupCode"
 
-        updateHeaderTitle()
-
-        // Клик по всей области заголовка
-        titleSelector?.setOnClickListener {
-            showGroupSelectionDialog()
-        }
-
-        btnOpenCalendar?.setOnClickListener {
+        btnOpenCalendar.setOnClickListener {
             val currentPos = viewPager?.currentItem ?: START_INDEX
             val datePicker = MaterialDatePicker.Builder.datePicker()
                 .setTitleText("Выберите дату")
@@ -145,121 +155,105 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         }
     }
 
-    private fun updateHeaderTitle() {
-        val tvHeaderTitle = view?.findViewById<TextView>(R.id.tv_schedule_title)
-        tvHeaderTitle?.text = "Расписание $currentGroupCode"
-    }
-
-    // --- Логика быстрой смены и добавления групп ---
-
-    private fun getSavedGroups(): MutableSet<String> {
-        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-        val set = prefs.getStringSet("saved_groups_list", null)?.toMutableSet()
-        if (set.isNullOrEmpty()) {
-            return mutableSetOf(currentGroupCode)
+    private fun toggleHistoryExpansion() {
+        isExpanded = !isExpanded
+        
+        // Анимируем расширение самой карточки
+        TransitionManager.beginDelayedTransition(cardHeader as ViewGroup)
+        
+        layoutRecentHistory.visibility = if (isExpanded) View.VISIBLE else View.GONE
+        viewOverlayDim.visibility = if (isExpanded) View.VISIBLE else View.GONE
+        
+        if (isExpanded) {
+            updateRecentListUI()
         }
-        set.add(currentGroupCode)
-        return set
     }
 
-    private fun saveGroupToList(groupCode: String) {
-        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-        val currentSet = getSavedGroups()
-        currentSet.add(groupCode)
-        prefs.edit { putStringSet("saved_groups_list", currentSet) }
-    }
-
-    private fun showGroupSelectionDialog() {
-        val anchorView = view?.findViewById<View>(R.id.layout_title_selector) ?: return
-        val arrowView = view?.findViewById<View>(R.id.iv_title_arrow)
-
-        val popupMenu = PopupMenu(requireContext(), anchorView)
-        val savedGroups = getSavedGroups().toList()
-
-        savedGroups.forEachIndexed { index, groupCode ->
-            popupMenu.menu.add(0, index, index, groupCode)
+    private fun updateRecentListUI() {
+        containerRecentItems.removeAllViews()
+        val recents = getRecentSelections()
+        
+        if (recents.isEmpty()) {
+            val emptyTv = TextView(requireContext()).apply {
+                text = "История пуста"
+                setPadding(48, 16, 16, 16)
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.ui_text_sub))
+                textSize = 14f
+            }
+            containerRecentItems.addView(emptyTv)
+            return
         }
 
-        val addGroupId = 999
-        popupMenu.menu.add(0, addGroupId, savedGroups.size, "+ Добавить новую группу")
-
-        // Применяем скругленный темный фон к popup
-        try {
-            val popupField = PopupMenu::class.java.getDeclaredField("mPopup")
-            popupField.isAccessible = true
-            val menuPopupHelper = popupField.get(popupMenu)
-            val popupWindowMethod = menuPopupHelper.javaClass.getMethod("getPopup")
-            val popupWindow = popupWindowMethod.invoke(menuPopupHelper) as? android.widget.PopupWindow
-            popupWindow?.setBackgroundDrawable(
-                ContextCompat.getDrawable(requireContext(), R.drawable.bg_popup_menu)
+        recents.forEach { selection ->
+            val itemView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.item_recent_selection, containerRecentItems, false)
+            
+            itemView.findViewById<TextView>(R.id.tv_recent_name).text = selection.name
+            itemView.findViewById<ImageView>(R.id.iv_recent_type).setImageResource(
+                if (selection.type == SelectionType.GROUP) R.drawable.ic_group else R.drawable.ic_lesson_teacher
             )
-        } catch (_: Exception) {}
 
-        // Анимация опускания стрелки вниз
-        arrowView?.animate()?.rotation(270f)?.setDuration(200)?.start()
-
-        popupMenu.setOnMenuItemClickListener { menuItem ->
-            if (menuItem.itemId == addGroupId) {
-                showAddGroupDialog()
-            } else {
-                val selectedGroup = savedGroups[menuItem.itemId]
-                if (selectedGroup != currentGroupCode) {
-                    switchCurrentGroup(selectedGroup)
-                }
+            // Подсвечиваем текущую группу
+            if (selection.id == currentGroupId) {
+                val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                val activeColor = (prefs.getString("accent_color", "#4FC3F7") ?: "#4FC3F7").toColorInt()
+                itemView.findViewById<TextView>(R.id.tv_recent_name).setTextColor(activeColor)
             }
-            true
-        }
 
-        // Возвращаем стрелку в исходное состояние при закрытии
-        popupMenu.setOnDismissListener {
-            arrowView?.animate()?.rotation(90f)?.setDuration(200)?.start()
+            itemView.setOnClickListener {
+                if (selection.id != currentGroupId) {
+                    switchToGroup(selection.id, selection.name)
+                }
+                toggleHistoryExpansion()
+            }
+            
+            containerRecentItems.addView(itemView)
         }
-
-        popupMenu.show()
     }
 
-    private fun showAddGroupDialog() {
-        val input = EditText(requireContext()).apply {
-            hint = "Например: МР-24-10"
-            setPadding(48, 32, 48, 32)
-        }
-
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Добавить группу")
-            .setView(input)
-            .setPositiveButton("Добавить") { _, _ ->
-                val newGroup = input.text.toString().trim().uppercase()
-                if (newGroup.isNotEmpty()) {
-                    saveGroupToList(newGroup)
-                    switchCurrentGroup(newGroup)
-                }
-            }
-            .setNegativeButton("Отмена", null)
-            .show()
-    }
-
-    private fun switchCurrentGroup(groupCode: String) {
+    private fun switchToGroup(id: Int, code: String) {
+        currentGroupId = id
+        currentGroupCode = code
+        
         val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-
-        val groupId = currentGroupId
-
-        currentGroupCode = groupCode
-        currentGroupId = groupId
-
         prefs.edit {
-            putString("user_group", groupCode)
-            putString("key_group_code", groupCode)
-            putInt("key_group_id", groupId)
+            putInt("key_group_id", id)
+            putString("key_group_code", code)
         }
-
-        updateHeaderTitle()
+        
+        view?.findViewById<TextView>(R.id.tv_schedule_title)?.text = "Расписание $code"
+        
+        // Очищаем кэш и обновляем адаптер
         scheduleCache.clear()
         viewPager?.adapter?.notifyDataSetChanged()
-
-        Toast.makeText(requireContext(), "Группа изменена на $groupCode", Toast.LENGTH_SHORT).show()
+        
+        saveToRecentFixed(id, code, SelectionType.GROUP)
     }
 
-    // ------------------------------------------------
+    private fun getRecentSelections(): List<RecentSelection> {
+        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val json = prefs.getString("key_recent_list_json", "[]") ?: "[]"
+        val array = org.json.JSONArray(json)
+        val list = mutableListOf<RecentSelection>()
+        for (i in 0 until array.length()) {
+            list.add(RecentSelection.fromJson(array.getString(i)))
+        }
+        return list
+    }
+
+    private fun saveToRecentFixed(id: Int, name: String, type: SelectionType) {
+        val list = getRecentSelections().toMutableList()
+        list.removeAll { it.id == id }
+        list.add(0, RecentSelection(id, name, type))
+        val limited = list.take(5)
+        
+        val array = org.json.JSONArray()
+        limited.forEach { array.put(it.toJson()) }
+        
+        requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE).edit {
+            putString("key_recent_list_json", array.toString())
+        }
+    }
 
     private fun jumpToDate(targetDate: Calendar, smooth: Boolean = true) {
         val diffDays = getDaysBetween(getTodayNoon(), targetDate)
@@ -267,11 +261,11 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
     }
 
     private fun setupMonthNavigation(view: View) {
-        view.findViewById<View>(R.id.btn_prev_week)?.setOnClickListener {
+        view.findViewById<View>(R.id.btn_prev_week).setOnClickListener {
             val currentWeek = headerViewPager?.currentItem ?: 0
             headerViewPager?.setCurrentItem(currentWeek - 1, true)
         }
-        view.findViewById<View>(R.id.btn_next_week)?.setOnClickListener {
+        view.findViewById<View>(R.id.btn_next_week).setOnClickListener {
             val currentWeek = headerViewPager?.currentItem ?: 0
             headerViewPager?.setCurrentItem(currentWeek + 1, true)
         }
@@ -287,7 +281,7 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
             jumpToDate(clickedDate, smooth = true)
         }
         headerViewPager?.adapter = headerAdapter
-        headerViewPager?.isUserInputEnabled = false
+        headerViewPager?.isUserInputEnabled = false 
 
         val mainAdapter = DailyScheduleAdapter(MAX_DAYS) { position ->
             scheduleCache.getOrPut(position) {
@@ -302,7 +296,7 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
             override fun onPageSelected(position: Int) {
                 val selectedDate = getDateForPosition(position)
                 saveSelectedDate(selectedDate)
-
+                
                 // Обновляем текст под заголовком (точная дата)
                 updateDateInfoText(selectedDate)
 
@@ -319,7 +313,7 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
                         headerViewPager?.post { isSyncingFromBottom = false }
                     }
                 }
-
+                
                 // Если скролл нижний, он сам знает свой месяц
                 if (!isSyncingFromTop) {
                     updateMonthYearText(selectedDate)
@@ -331,7 +325,7 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         headerViewPager?.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 if (isSyncingFromBottom) return
-
+                
                 // Вычисляем примерную дату для отображения месяца в хедере
                 val weekDate = (weekAnchor.clone() as Calendar).apply {
                     add(Calendar.WEEK_OF_YEAR, position)
@@ -345,10 +339,10 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         val savedDate = getSavedDate() ?: getTodayNoon()
         val initialDiff = getDaysBetween(getTodayNoon(), savedDate)
         val initialPos = START_INDEX + initialDiff
-
+        
         isSyncingFromTop = true
         viewPager?.setCurrentItem(initialPos, false)
-
+        
         val initialWeek = getDaysBetween(weekAnchor, getDateForPosition(initialPos)) / 7
         headerViewPager?.setCurrentItem(initialWeek, false)
         headerAdapter?.updateSelectedDate(getDateForPosition(initialPos))
@@ -400,8 +394,32 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         tvDateInfo?.text = fullDateFormatter.format(date.time).replaceFirstChar { it.uppercase() }
     }
 
+    private fun saveSelectedDate(date: Calendar) {
+        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        prefs.edit { 
+            putLong("key_selected_date_millis", date.timeInMillis)
+        }
+    }
+
+    private fun getSavedDate(): Calendar? {
+        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val millis = prefs.getLong("key_selected_date_millis", -1)
+        return if (millis != -1L) {
+            val cal = Calendar.getInstance()
+            cal.timeInMillis = millis
+            cal
+        } else null
+    }
+
     private fun getDayIndexForCalendar(cal: Calendar): Int {
         val day = cal.get(Calendar.DAY_OF_WEEK)
         return if (day == Calendar.SUNDAY) 6 else day - 2
+    }
+
+    private fun applyBlurEffect(view: View, radius: Float) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val blurEffect = RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.CLAMP)
+            view.setRenderEffect(blurEffect)
+        }
     }
 }

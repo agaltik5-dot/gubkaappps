@@ -7,20 +7,30 @@
     android:layout_height="match_parent"
     android:background="@color/ui_bg">
 
-    <!-- 1. Заголовок (Расписание / Дата) -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layout_header"
+    <!-- Фон-заглушка для закрытия оверлея при нажатии вне списка -->
+    <View
+        android:id="@+id/view_overlay_dim"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="8dp"
-        android:paddingBottom="4dp"
+        android:layout_height="match_parent"
+        android:background="#00000000"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+
+    <!-- 1. Фиксированный слой хедера для статичных кнопок -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_header_fixed"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:elevation="30dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
             android:id="@+id/btn_open_calendar"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:layout_marginStart="16dp"
+            android:layout_width="58dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="10dp"
             android:scaleType="fitCenter"
@@ -28,64 +38,117 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.666"
             app:tint="@color/ui_text_main" />
 
-        <!-- Кликабельный контейнер заголовка и стрелки -->
-        <LinearLayout
-            android:id="@+id/layout_title_selector"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tv_schedule_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-black"
-                    android:text="Расписание"
-                    android:textColor="@color/ui_text_main"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_current_date_info"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="Загрузка..."
-                    android:textColor="@color/ui_text_sub"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/iv_title_arrow"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_marginStart="8dp"
-                android:rotation="90"
-                android:src="@drawable/ic_arrow_right"
-                app:tint="@color/ui_text_main" />
-        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- 2. Навигация по месяцам/неделям -->
+    <!-- 2. Компактная раскрывающаяся карточка (центрирована) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:cardBackgroundColor="@color/ui_surface"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="35dp"
+        app:strokeWidth="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layout_header_main"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:minWidth="180dp"
+                android:paddingHorizontal="24dp">
+
+                <LinearLayout
+                    android:id="@+id/layout_text_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/tv_schedule_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:fontFamily="sans-serif-black"
+                        android:maxLines="1"
+                        android:text="Расписание"
+                        android:textColor="@color/ui_text_main"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_current_date_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Загрузка..."
+                        android:textColor="@color/ui_text_sub"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- Серая полоска-индикатор снизу -->
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Список истории ВНУТРИ карточки -->
+            <LinearLayout
+                android:id="@+id/layout_recent_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:paddingBottom="8dp">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@color/ui_divider"
+                    android:alpha="0.5" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginBottom="4dp"
+                    android:text="НЕДАВНИЕ"
+                    android:textColor="@color/ui_text_sub"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/container_recent_items"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <!-- Recent Items -->
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 3. Навигация по месяцам/неделям (привязана к фиксированному хедеру) -->
     <LinearLayout
         android:id="@+id/layout_month_nav"
         android:layout_width="match_parent"
@@ -95,7 +158,8 @@
         android:paddingHorizontal="16dp"
         android:paddingTop="0dp"
         android:paddingBottom="2dp"
-        app:layout_constraintTop_toBottomOf="@id/layout_header"
+        android:elevation="25dp"
+        app:layout_constraintTop_toBottomOf="@id/layout_header_fixed"
         tools:layout_editor_absoluteX="0dp">
 
         <ImageButton
@@ -146,14 +210,24 @@
         android:layout_width="match_parent"
         android:layout_height="72dp"
         android:layout_marginTop="4dp"
+        android:elevation="25dp"
         app:layout_constraintTop_toBottomOf="@id/layout_month_nav" />
+
+    <!-- ЭФФЕКТ РАЗМЫТИЯ НА ГРАНИЦЕ (ЖИДКОЕ СТЕКЛО) -->
+    <View
+        android:id="@+id/view_boundary_blur"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="@drawable/bg_liquid_glass_gradient"
+        app:layout_constraintTop_toTopOf="parent"
+        android:elevation="10dp" />
 
     <!-- 3. ViewPager2 для свайпов между днями -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/vp_schedule"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="-180dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/vp_calendar_header" />
 

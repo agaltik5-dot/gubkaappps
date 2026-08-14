@@ -1,10 +1,9 @@
-- [x] **UI Update: Refresh Support**
-    - [x] Add `SwipeRefreshLayout` to `fragment_search.xml`
-- [x] **Logic Update: Structural Cleanup**
-    - [x] Update `injectCustomCss()` with precise structural selectors
-    - [x] Implement `SwipeRefreshLayout` logic in `SearchFragment.kt`
-    - [x] Refine `MutationObserver` to be less aggressive but more accurate
-- [x] **Verification**
-    - [x] Build and run the app
-    - [x] Verify content visibility and structural cleanup
-    - [x] Verify "Pull to Refresh" functionality
+- [ ] **UI Fix: Header & Arrow**
+    - [ ] Update `fragment_schedule.xml`: Position arrow at the end, remove inline list.
+- [ ] **Logic Fix: Floating Popup**
+    - [ ] Implement `showRecentItemsPopup()` in `ScheduleFragment.kt` using `PopupWindow`.
+    - [ ] Anchor the popup to the header card.
+    - [ ] Handle arrow rotation and dismissal.
+- [ ] **Verification**
+    - [ ] Verify the arrow is correctly aligned.
+    - [ ] Verify the list opens over the schedule content.

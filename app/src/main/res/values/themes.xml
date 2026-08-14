@@ -16,8 +16,8 @@
     </style>
 
     <!-- Анимация для выпадающего списка -->
-    <style name="SpinnerPopupAnimation">
-        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
-        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    <style name="SpinnerPopupAnimation" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/popup_enter</item>
+        <item name="android:windowExitAnimation">@anim/popup_exit</item>
     </style>
 </resources>

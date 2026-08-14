@@ -1,33 +1,41 @@
-# "Proper" Integration of Official Schedule Portal
+# Implementation Plan: Floating Dropdown Menu
 
-We will move away from aggressive "keyword-based" hiding, which caused the empty screen, and instead implement a robust, structural cleanup of the WebView content. The goal is to isolate the data lists (Faculties/Teachers/Rooms) and make them appear native.
+This plan fixes the expandable header logic to ensure the dropdown menu opens correctly, is positioned "on top of everything" (z-order), and has a properly aligned arrow.
+
+## User Review Required
+
+> [!IMPORTANT]
+> The dropdown list will be changed from an inline `RecyclerView` (which pushes content down) to a `ListPopupWindow`. This ensures it appears **on top** of the schedule and month navigation without moving them.
+>
+> [!NOTE]
+> The arrow icon will be moved to the absolute right side of the header card.
 
 ## Proposed Changes
 
 ### UI & Layout
 
-#### [MODIFY] [fragment_search.xml](file:///C:/Users/agalt/AndroidStudioProjects/MyApplication5/app/src/main/res/layout/fragment_search.xml)
-- Wrap the `WebView` in a `SwipeRefreshLayout` to allow users to manually refresh the data "properly."
+#### [MODIFY] [fragment_schedule.xml](file:///C:/Users/agalt/AndroidStudioProjects/MyApplication5/app/src/main/res/layout/fragment_schedule.xml)
+- Update the `RelativeLayout` inside `card_header_expandable`:
+    - Set `layout_width="match_parent"` for the header card container.
+    - Position `iv_header_arrow` with `layout_alignParentEnd="true"`.
+    - **Remove** the inline `rv_recent_dropdown` to avoid pushing layout.
 
-### Logic & Content Filtering
+### Logic & Fragment
 
-#### [MODIFY] [SearchFragment.kt](file:///C:/Users/agalt/AndroidStudioProjects/MyApplication5/app/src/main/java/com/example/myapplication/ui/SearchFragment.kt)
-- **Precise CSS Injection**: Target only known structural elements of the site:
-    - `.navbar`, `.site-header`, `.page-header`, `header`, `footer`.
-    - Breadcrumbs (`.breadcrumb`).
-    - The site's internal navigation tabs (usually a list or button group at the top of the content).
-- **Structural Cleanup Script**: Instead of just `display: none`, use a script that:
-    1.  Waits for the SPA content to load.
-    2.  Finds the main container (e.g., `.content-wrapper` or `.main`).
-    3.  Sets the `padding-top` and `margin-top` of the container to 0 to remove gaps.
-    4.  Specifically hides the "Расписание занятий" heading without hiding all `h1/h2` on the page.
-- **Theme Synchronization**: Improve the background color application to prevent "white flashes" during transitions.
+#### [MODIFY] [ScheduleFragment.kt](file:///C:/Users/agalt/AndroidStudioProjects/MyApplication5/app/src/main/java/com/example/myapplication/ui/ScheduleFragment.kt)
+- Replace the visibility toggle logic with `ListPopupWindow`.
+- Configure `ListPopupWindow`:
+    - Anchor it to `card_header_expandable`.
+    - Use `RecentItemsAdapter` (or a custom adapter if required by the native popup).
+    - Set the width to match the anchor's width.
+    - Add a `dismissListener` to reset the arrow rotation.
+- Update `setupQuickAccess` to initialize the popup.
 
 ## Verification Plan
 
 ### Manual Verification
-1.  Open the Search tab.
-2.  Verify the official lists are visible and scrollable.
-3.  Confirm the site's own header and duplicate tabs are hidden.
-4.  Test the `SwipeRefreshLayout` functionality.
-5.  Check tab switching responsiveness between "Faculties", "Teachers", and "Rooms".
+1.  Open the Schedule tab.
+2.  Verify the arrow is now at the right edge of the header.
+3.  Click the header.
+4.  Verify a floating list appears **over** the calendar and schedule.
+5.  Select an item and verify the schedule updates and the popup closes.
