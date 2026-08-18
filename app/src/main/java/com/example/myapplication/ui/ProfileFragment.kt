@@ -203,7 +203,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
     }
 
-    private fun openStudentData() {
+    fun openStudentData() {
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, StudentDataFragment())
             .addToBackStack(null)

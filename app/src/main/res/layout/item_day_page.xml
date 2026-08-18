@@ -25,7 +25,6 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="40dp"
-        android:paddingBottom="280dp"
         android:visibility="gone"
         tools:visibility="visible">
 
@@ -33,7 +32,7 @@
             android:layout_width="280dp"
             android:layout_height="280dp"
             android:scaleType="fitCenter"
-            android:translationY="-100dp"
+            android:translationY="-200dp"
             android:src="@drawable/img_empty_state"
             tools:src="@drawable/gubkin_logo" />
 
@@ -43,7 +42,7 @@
             android:layout_marginTop="16dp"
             android:gravity="center"
             android:lineSpacingExtra="4dp"
-            android:translationY="-100dp"
+            android:translationY="-200dp"
             android:text="Сегодня нету пар,\nможете отдохнуть"
             android:textColor="@color/ui_text_main"
             android:textSize="20sp"
@@ -53,7 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:translationY="-100dp"
+            android:translationY="-200dp"
             android:text="Чиллим в вагонетке!"
             android:textColor="@color/ui_text_sub"
             android:textSize="15sp"

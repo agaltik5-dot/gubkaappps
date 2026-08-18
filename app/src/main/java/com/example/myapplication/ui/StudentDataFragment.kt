@@ -55,14 +55,17 @@ class StudentDataFragment : Fragment(R.layout.fragment_student_data) {
         }
 
         // Кнопка "Изменить" (переход во фрагмент редактирования)
-        // Используй btn_edit или card_edit — смотря какой ID у тебя в XML для этой кнопки
-        val btnEdit = view.findViewById<View>(R.id.btn_edit_profile) ?: view.findViewById<View>(R.id.btn_edit_profile)
+        val btnEdit = view.findViewById<View>(R.id.btn_edit_profile)
         btnEdit?.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, EditStudentDataFragment())
-                .addToBackStack(null)
-                .commit()
+            openEditProfile()
         }
+    }
+
+    fun openEditProfile() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, EditStudentDataFragment())
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onResume() {

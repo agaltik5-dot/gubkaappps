@@ -26,7 +26,7 @@ class DailyScheduleAdapter(
         init {
             recyclerView.layoutManager = LinearLayoutManager(view.context)
             recyclerView.setHasFixedSize(true)
-            recyclerView.isNestedScrollingEnabled = false
+            recyclerView.isNestedScrollingEnabled = true
         }
     }
 

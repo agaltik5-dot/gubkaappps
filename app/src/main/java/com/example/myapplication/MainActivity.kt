@@ -107,6 +107,19 @@ class MainActivity : AppCompatActivity() {
         updateNavTintByIndex(index, animate)
     }
 
+    /**
+     * Public method to allow fragments to request a tab switch with an optional action.
+     */
+    fun switchToTab(index: Int, action: (() -> Unit)? = null) {
+        openTab(index)
+        if (action != null) {
+            // Give some time for the fragment to be swapped and its view created
+            findViewById<View>(R.id.fragment_container).postDelayed({
+                action.invoke()
+            }, 100)
+        }
+    }
+
     private fun replaceFragment(fragment: Fragment, enterAnim: Int = 0, exitAnim: Int = 0) {
         val transaction = supportFragmentManager.beginTransaction()
         if (enterAnim != 0 && exitAnim != 0) {
