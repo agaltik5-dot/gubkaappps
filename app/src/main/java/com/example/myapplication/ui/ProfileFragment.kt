@@ -38,8 +38,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         // Находим текстовые поля Имени и Подписи (Факультет • Группа)
         tvProfileName = view.findViewById(R.id.tv_user_name)
             ?: view.findViewById(R.id.tv_student_name)
+
         tvProfileSubtitle = view.findViewById(R.id.tv_user_sub)
-            ?: view.findViewById(R.id.tv_user_sub)
 
         val btnStudentData = view.findViewById<LinearLayout>(R.id.btn_account_details)
 
@@ -79,18 +79,12 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             openThemeSettings()
         }
 
-        // Выбор языка
-        tvCurrentLanguage?.text = prefs.getString("app_language", "Русский")
-        btnLanguage?.setOnClickListener {
-            val languages = arrayOf("Русский", "English", "Татарча", "Беларуская")
-            AlertDialog.Builder(requireContext())
-                .setTitle("Язык / Language")
-                .setItems(languages) { _, which ->
-                    val selectedLang = languages[which]
-                    tvCurrentLanguage.text = selectedLang
-                    prefs.edit { putString("app_language", selectedLang) }
-                }
-                .show()
+        // Отключение клика по кнопке "Язык" без изменения внешнего вида
+        tvCurrentLanguage?.text = "Русский"
+        btnLanguage?.apply {
+            isClickable = false
+            isFocusable = false
+            setOnClickListener(null)
         }
 
         // Масштаб
@@ -162,22 +156,36 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     override fun onResume() {
         super.onResume()
         loadAvatar()
-        loadProfileData() // Загружаем свежие имя, фамилию, факультет и группу
+        loadProfileData()
+        applyThemeColors()
+    }
+
+    private fun applyThemeColors() {
+        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        // Обновление динамических цветов, если требуется
     }
 
     private fun loadProfileData() {
         val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
-        val firstName = prefs.getString("user_first_name", "Иван")
-        val lastName = prefs.getString("user_last_name", "Иванов")
-        val faculty = prefs.getString("user_faculty", "Инженерной механики")
-        val group = prefs.getString("user_group", "МР-24-10")
+        val firstName = prefs.getString("user_first_name", "Иван").orEmpty()
+        val lastName = prefs.getString("user_last_name", "Иванов").orEmpty()
+        val faculty = prefs.getString("user_faculty", "Инженерной механики").orEmpty()
+        val group = prefs.getString("user_group", "МР-24-10").orEmpty()
 
-        // Обновляем Имя и Фамилию
-        tvProfileName?.text = "$firstName $lastName"
+        // Формируем Имя Фамилию
+        val fullName = "$firstName $lastName".trim()
+        tvProfileName?.text = if (fullName.isNotEmpty()) fullName else "Студент"
 
-        // Обновляем подпись под именем
-        tvProfileSubtitle?.text = "$faculty • $group"
+        // Формируем подпись (Факультет • Группа)
+        val subtitle = when {
+            faculty.isNotEmpty() && group.isNotEmpty() -> "$faculty • $group"
+            faculty.isNotEmpty() -> faculty
+            group.isNotEmpty() -> group
+            else -> ""
+        }
+        tvProfileSubtitle?.text = subtitle
+        tvProfileSubtitle?.visibility = if (subtitle.isNotEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun loadAvatar() {
@@ -188,7 +196,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             if (!savedPath.isNullOrEmpty()) {
                 val file = File(savedPath)
                 if (file.exists()) {
-                    // Снимаем синий тинт, чтобы отобразить реальное фото
                     imageView.imageTintList = null
 
                     Glide.with(this)

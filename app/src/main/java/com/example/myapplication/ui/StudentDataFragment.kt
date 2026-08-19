@@ -25,6 +25,10 @@ class StudentDataFragment : Fragment(R.layout.fragment_student_data) {
     private lateinit var tvFaculty: TextView
     private lateinit var tvBirthDate: TextView
 
+    // Переменные для телефона и почты
+    private var tvPhone: TextView? = null
+    private var tvEmail: TextView? = null
+
     private val selectImageLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -34,15 +38,26 @@ class StudentDataFragment : Fragment(R.layout.fragment_student_data) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Инициализация по твоим ID из скриншота:
+        // Инициализация элементов экрана
         ivAvatar = view.findViewById(R.id.iv_student_avatar)
         tvName = view.findViewById(R.id.tv_student_name)
         tvGroup = view.findViewById(R.id.tv_group_value)
         tvFaculty = view.findViewById(R.id.tv_faculty_value)
         tvBirthDate = view.findViewById(R.id.tv_birth_value)
 
+        // Инициализация полей Контактов (проверьте соответствие ID в вашем fragment_student_data.xml)
+        tvPhone = view.findViewById(R.id.tv_phone_value)
+            ?: view.findViewById(R.id.tv_phone_value)
+        tvEmail = view.findViewById(R.id.tv_email_value)
+            ?: view.findViewById(R.id.tv_email_value)
+
         // Скрываем нижнее навигационное меню
         activity?.findViewById<View>(R.id.card_nav)?.visibility = View.GONE
+
+        // Подписка на событие сохранения из EditStudentDataFragment
+        parentFragmentManager.setFragmentResultListener("student_data_updated", viewLifecycleOwner) { _, _ ->
+            loadUserData()
+        }
 
         // Кнопка "Назад"
         view.findViewById<ImageView>(R.id.btn_back)?.setOnClickListener {
@@ -54,9 +69,8 @@ class StudentDataFragment : Fragment(R.layout.fragment_student_data) {
             selectImageLauncher.launch("image/*")
         }
 
-        // Кнопка "Изменить" (переход во фрагмент редактирования)
-        val btnEdit = view.findViewById<View>(R.id.btn_edit_profile)
-        btnEdit?.setOnClickListener {
+        // Кнопка перехода к редактированию
+        view.findViewById<View>(R.id.btn_edit_profile)?.setOnClickListener {
             openEditProfile()
         }
     }
@@ -77,15 +91,19 @@ class StudentDataFragment : Fragment(R.layout.fragment_student_data) {
     private fun loadUserData() {
         val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
-        val firstName = prefs.getString("user_first_name", "Иван")
-        val lastName = prefs.getString("user_last_name", "Иванов")
-        tvName.text = "$lastName $firstName"
+        val firstName = prefs.getString("user_first_name", "Иван").orEmpty()
+        val lastName = prefs.getString("user_last_name", "Иванов").orEmpty()
 
-        tvGroup.text = prefs.getString("user_group", "ИВТ-221")
-        tvFaculty.text = prefs.getString("user_faculty", "Информационные технологии")
-        tvBirthDate.text = prefs.getString("user_birth_date", "27 мар. 2005 (19 лет)")
+        tvName.text = "$lastName $firstName".trim()
+        tvGroup.text = prefs.getString("user_group", "МР-24-10")
+        tvFaculty.text = prefs.getString("user_faculty", "ФИМ")
+        tvBirthDate.text = prefs.getString("user_birth_date", "27.03.2005")
 
-        // Загрузка фото
+        // Вывод телефона и почты
+        tvPhone?.text = prefs.getString("user_phone", "+79787433781")
+        tvEmail?.text = prefs.getString("user_email", "ivan@univ.ru")
+
+        // Загрузка фото аватарки
         val savedPath = prefs.getString("profile_avatar_path", null)
         if (!savedPath.isNullOrEmpty()) {
             val file = File(savedPath)

@@ -1,19 +1,16 @@
 package com.example.myapplication.ui
 
-import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
 import com.example.myapplication.R
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -47,7 +44,7 @@ class NotificationsSettingsFragment : Fragment(R.layout.fragment_notifications_s
         val switchBackgroundService = view.findViewById<SwitchMaterial>(R.id.switch_background_service)
 
         // Кнопка Назад
-        btnBack.setOnClickListener {
+        btnBack?.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
@@ -58,15 +55,10 @@ class NotificationsSettingsFragment : Fragment(R.layout.fragment_notifications_s
         switchVibration?.isChecked = prefs.getBoolean("pref_vibration", true)
         switchBackgroundService?.isChecked = prefs.getBoolean("pref_background_service", true)
 
-        // Напоминания о парах (Запрос разрешения + мгновенное уведомление)
+        // Сохранение состояний
         switchLessonReminder?.setOnCheckedChangeListener { _, isChecked ->
             savePreference("pref_lesson_reminder", isChecked)
-            if (isChecked) {
-                checkPermissionAndNotify()
-            }
         }
-
-        // Остальные переключатели
         switchScheduleChanges?.setOnCheckedChangeListener { _, isChecked ->
             savePreference("pref_schedule_changes", isChecked)
         }
@@ -79,51 +71,78 @@ class NotificationsSettingsFragment : Fragment(R.layout.fragment_notifications_s
         switchBackgroundService?.setOnCheckedChangeListener { _, isChecked ->
             savePreference("pref_background_service", isChecked)
         }
+
+        applyThemeColor()
     }
 
-    private fun checkPermissionAndNotify() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                sendTestNotification()
-            } else {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        } else {
-            sendTestNotification()
-        }
-    }
-
-    private fun sendTestNotification() {
-        val notificationManager =
-            requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channelId = "lesson_reminders"
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Напоминания о парах",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        val notification = NotificationCompat.Builder(requireContext(), channelId)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("Расписание пар")
-            .setContentText("Напоминания о парах успешно включены!")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .build()
-
-        notificationManager.notify(101, notification)
+    override fun onResume() {
+        super.onResume()
+        applyThemeColor()
     }
 
     private fun savePreference(key: String, value: Boolean) {
-        requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-            .edit { putBoolean(key, value) }
+        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        prefs.edit { putBoolean(key, value) }
+    }
+
+    private fun sendTestNotification() {
+        // Логика тестового уведомления (если требуется)
+    }
+
+    private fun applyThemeColor() {
+        val context = requireContext()
+        val prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val accentColorHex = prefs.getString("accent_color", "#4FC3F7") ?: "#4FC3F7"
+        val activeColor = accentColorHex.toColorInt()
+
+        val root = view ?: return
+
+        // 1. Покраска заголовков категорий
+        root.findViewById<TextView>(R.id.tv_cat_lessons)?.setTextColor(activeColor)
+        root.findViewById<TextView>(R.id.tv_cat_in_app)?.setTextColor(activeColor)
+        root.findViewById<TextView>(R.id.tv_cat_background)?.setTextColor(activeColor)
+
+        // 2. Настройка цвета переключателей (Thumb и Track)
+        val states = arrayOf(
+            intArrayOf(android.R.attr.state_checked),
+            intArrayOf(-android.R.attr.state_checked)
+        )
+
+        val thumbTintList = ColorStateList(
+            states,
+            intArrayOf(
+                activeColor,
+                Color.parseColor("#888888")
+            )
+        )
+
+        val trackTintList = ColorStateList(
+            states,
+            intArrayOf(
+                adjustAlpha(activeColor, 0.4f),
+                Color.parseColor("#33888888")
+            )
+        )
+
+        val switches = listOfNotNull(
+            root.findViewById<SwitchMaterial>(R.id.switch_lesson_reminder),
+            root.findViewById<SwitchMaterial>(R.id.switch_schedule_changes),
+            root.findViewById<SwitchMaterial>(R.id.switch_sound),
+            root.findViewById<SwitchMaterial>(R.id.switch_vibration),
+            root.findViewById<SwitchMaterial>(R.id.switch_background_service)
+        )
+
+        switches.forEach { switch ->
+            switch.thumbTintList = thumbTintList
+            switch.trackTintList = trackTintList
+        }
+    }
+
+    private fun adjustAlpha(color: Int, factor: Float): Int {
+        val alpha = Math.round(Color.alpha(color) * factor)
+        val red = Color.red(color)
+        val green = Color.green(color)
+        val blue = Color.blue(color)
+        return Color.argb(alpha, red, green, blue)
     }
 }

@@ -58,6 +58,7 @@
                     android:paddingBottom="8dp">
 
                     <TextView
+                        android:id="@+id/tv_cat_lessons"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
@@ -136,6 +137,7 @@
                     android:paddingBottom="8dp">
 
                     <TextView
+                        android:id="@+id/tv_cat_in_app"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
@@ -214,6 +216,7 @@
                     android:paddingBottom="8dp">
 
                     <TextView
+                        android:id="@+id/tv_cat_background"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"

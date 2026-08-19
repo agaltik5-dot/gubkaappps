@@ -52,7 +52,7 @@
             android:orientation="vertical"
             android:padding="12dp">
 
-            <!-- Блок: Ваше имя -->
+            <!-- Блок 1: Ваше имя -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -82,6 +82,7 @@
                         android:layout_height="40dp"
                         android:background="@null"
                         android:hint="Имя"
+                        android:inputType="textPersonName"
                         android:textColor="?android:attr/textColorPrimary"
                         android:textColorHint="#808080"
                         android:textSize="16sp" />
@@ -97,13 +98,14 @@
                         android:layout_height="40dp"
                         android:background="@null"
                         android:hint="Фамилия"
+                        android:inputType="textPersonName"
                         android:textColor="?android:attr/textColorPrimary"
                         android:textColorHint="#808080"
                         android:textSize="16sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Блок: Информация о Вас -->
+            <!-- Блок 3: Контактные данные (Телефон и Почта) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -123,7 +125,80 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
-                        android:text="Информация о Вас"
+                        android:text="Контакты"
+                        android:textColor="#808080"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <!-- НОМЕР ТЕЛЕФОНА -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="НОМЕР ТЕЛЕФОНА"
+                        android:textColor="#808080"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/et_phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@null"
+                        android:hint="+7 (___) ___-__-__"
+                        android:inputType="phone"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textColorHint="#808080"
+                        android:textSize="16sp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="8dp"
+                        android:background="#1A808080" />
+
+                    <!-- ЭЛЕКТРОННАЯ ПОЧТА -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ЭЛЕКТРОННАЯ ПОЧТА"
+                        android:textColor="#808080"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/et_email"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@null"
+                        android:hint="example@univ.ru"
+                        android:inputType="textEmailAddress"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textColorHint="#808080"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Блок 4: Информация об обучении -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_card_floating"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Учебные данные"
                         android:textColor="#808080"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -259,7 +334,6 @@
                         android:background="#1A808080" />
 
                     <!-- ДЕНЬ РОЖДЕНИЯ -->
-                    <!-- ДЕНЬ РОЖДЕНИЯ -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -272,7 +346,6 @@
                         android:id="@+id/et_birth_date"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
-                        android:layout_marginStart="0dp"
                         android:background="@null"
                         android:clickable="true"
                         android:focusable="false"

@@ -66,6 +66,8 @@ class EditStudentDataFragment : Fragment(R.layout.fragment_edit_student_data) {
 
         val etFirstName = view.findViewById<EditText>(R.id.et_first_name)
         val etLastName = view.findViewById<EditText>(R.id.et_last_name)
+        val etPhone = view.findViewById<EditText>(R.id.et_phone)
+        val etEmail = view.findViewById<EditText>(R.id.et_email)
         val etBirthDate = view.findViewById<EditText>(R.id.et_birth_date)
 
         actvFaculty = view.findViewById(R.id.et_faculty)
@@ -83,6 +85,8 @@ class EditStudentDataFragment : Fragment(R.layout.fragment_edit_student_data) {
         // Подгружаем исходные данные
         etFirstName.setText(prefs.getString("user_first_name", "Иван"))
         etLastName.setText(prefs.getString("user_last_name", "Иванов"))
+        etPhone.setText(prefs.getString("user_phone", "+7 999 000 0000"))
+        etEmail.setText(prefs.getString("user_email", "ivan@univ.ru"))
         etBirthDate.setText(prefs.getString("user_birth_date", "27.03.2005"))
 
         // Выбор даты рождения через MaterialDatePicker
@@ -147,6 +151,8 @@ class EditStudentDataFragment : Fragment(R.layout.fragment_edit_student_data) {
             prefs.edit {
                 putString("user_first_name", etFirstName.text.toString())
                 putString("user_last_name", etLastName.text.toString())
+                putString("user_phone", etPhone.text.toString())
+                putString("user_email", etEmail.text.toString())
                 putString("user_faculty", selectedFacultyName)
                 putString("user_group", selectedGroupCode)
                 putInt("key_group_id", selectedGroupId)
@@ -154,13 +160,15 @@ class EditStudentDataFragment : Fragment(R.layout.fragment_edit_student_data) {
                 putString("user_birth_date", etBirthDate.text.toString())
             }
 
+            // Отправляем сигнал обновлении в родительский фрагмент
+            parentFragmentManager.setFragmentResult("student_data_updated", Bundle())
+
             Toast.makeText(requireContext(), "Данные сохранены", Toast.LENGTH_SHORT).show()
             parentFragmentManager.popBackStack()
         }
     }
 
     private fun setupInlineDropdowns(rootView: View) {
-        // ФАКУЛЬТЕТ
         val facultyNames = scheduleRepository.FACULTIES.values.toList()
         facultyInlineAdapter = SearchDropdownAdapter(facultyNames) { selected ->
             TransitionManager.beginDelayedTransition(editContainer, getSmoothTransition())
@@ -179,7 +187,6 @@ class EditStudentDataFragment : Fragment(R.layout.fragment_edit_student_data) {
         rvFaculty.adapter = facultyInlineAdapter
 
         val openFacultyList = {
-            // Показываем полный список при каждом открытии
             facultyInlineAdapter.updateItems(facultyNames)
             toggleInlineList(wrapperFaculty, actvFaculty)
         }
@@ -207,7 +214,6 @@ class EditStudentDataFragment : Fragment(R.layout.fragment_edit_student_data) {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        // ГРУППА
         groupInlineAdapter = SearchDropdownAdapter(emptyList()) { selected ->
             TransitionManager.beginDelayedTransition(editContainer, getSmoothTransition())
             actvGroup.setText(selected, false)
@@ -223,7 +229,6 @@ class EditStudentDataFragment : Fragment(R.layout.fragment_edit_student_data) {
         rvGroup.adapter = groupInlineAdapter
 
         val openGroupList = {
-            // Показываем полный список групп при открытии
             groupInlineAdapter.updateItems(currentGroups.map { it.first })
             toggleInlineList(wrapperGroup, actvGroup)
         }
