@@ -19,13 +19,11 @@ import com.example.myapplication.data.NewsItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.Request
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import java.io.InputStream
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
-import javax.net.ssl.*
 
 class NewsFragment : Fragment(R.layout.fragment_news) {
 
@@ -80,13 +78,17 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
         val newsItems = mutableListOf<NewsItem>()
         try {
             val url = "https://www.gubkin.ru/news/"
-            
-            // Настройка Jsoup с обходом SSL и User-Agent
-            val doc: Document = Jsoup.connect(url)
-                .sslSocketFactory(getUnsafeSslSocketFactory())
-                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36")
-                .timeout(20000)
-                .get()
+
+            val client = NetworkUtils.getUnsafeOkHttpClient()
+            val request = Request.Builder()
+                .url(url)
+                .build()
+
+            val response = client.newCall(request).execute()
+            val html = response.body?.string() ?: ""
+
+            // Парсим полученный HTML через Jsoup
+            val doc: Document = Jsoup.parse(html, "https://www.gubkin.ru")
 
             // Ищем блоки новостей
             val elements: Elements = doc.select(".b-news-item")
@@ -116,21 +118,6 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
             e.printStackTrace()
         }
         newsItems
-    }
-
-    /**
-     * Создает SSLSocketFactory, который не проверяет сертификаты.
-     */
-    private fun getUnsafeSslSocketFactory(): SSLSocketFactory {
-        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
-            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
-            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
-            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-        })
-
-        val sslContext = SSLContext.getInstance("TLS")
-        sslContext.init(null, trustAllCerts, SecureRandom())
-        return sslContext.socketFactory
     }
 
     private fun openUrl(url: String) {
