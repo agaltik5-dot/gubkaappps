@@ -11,14 +11,35 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.webkit.CookieManager
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
+import android.util.Log
+import android.app.NotificationManager
+import androidx.core.app.NotificationCompat
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.R
+import com.example.myapplication.data.RecentSelection
+import com.example.myapplication.data.ScheduleSyncHelper
+import com.example.myapplication.data.SelectionType
+import com.example.myapplication.data.NetworkUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class SearchFragment : Fragment(R.layout.fragment_search) {
 
@@ -39,6 +60,24 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         "https://lk.gubkin.ru/schedule/#/activities/rooms"
     )
 
+    private var isUnifiedViewActive = false
+    private var syncTriggered = false
+
+    inner class ScheduleBridge {
+        @android.webkit.JavascriptInterface
+        fun onUrlChanged(url: String) {
+            requireActivity().runOnUiThread {
+                if (url == "exit") {
+                    isUnifiedViewActive = false
+                    syncTriggered = false
+                    webView.loadUrl(urls[currentTabIndex])
+                } else {
+                    checkIfCaptchaPassed(url)
+                }
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -56,22 +95,41 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         setupCustomTabs()
         applyThemeColor()
         setupBackPress()
+        setupScrollSync()
 
         if (savedInstanceState == null) {
             selectTab(0)
         }
     }
 
+    private fun setupScrollSync() {
+        // Исправляем баг: SwipeRefresh должен работать только когда WebView в самом верху
+        webView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
+            swipeRefresh.isEnabled = scrollY == 0
+        }
+    }
+
     private fun setupSwipeRefresh() {
         swipeRefresh.setOnRefreshListener {
-            webView.reload()
+            if (isUnifiedViewActive) {
+                syncTriggered = false
+                fetchUnifiedSchedule()
+            } else {
+                val cookie = CookieManager.getInstance().getCookie("https://lk.gubkin.ru")
+                if (ScheduleSyncHelper.isScheduleSessionReady(webView.url, cookie)) {
+                    syncTriggered = false
+                    fetchUnifiedSchedule(webView.url)
+                } else {
+                    webView.reload()
+                }
+            }
         }
         val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         val activeColor = (prefs.getString("accent_color", "#4FC3F7") ?: "#4FC3F7").toColorInt()
         swipeRefresh.setColorSchemeColors(activeColor)
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface")
     private fun setupWebView() {
         webView.settings.apply {
             javaScriptEnabled = true
@@ -80,6 +138,8 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             loadWithOverviewMode = true
             userAgentString = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36"
         }
+
+        webView.addJavascriptInterface(ScheduleBridge(), "AndroidBridge")
 
         webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
@@ -92,6 +152,8 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
                 progressBar.visibility = View.GONE
                 swipeRefresh.isRefreshing = false
                 injectCustomCss()
+                injectNavigationWatcher()
+                checkIfCaptchaPassed(url)
             }
 
             override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
@@ -199,9 +261,42 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         webView.evaluateJavascript(js, null)
     }
 
+    private fun injectNavigationWatcher() {
+        val js = """
+            (function() {
+                if (window.__gubkinNavHook) return;
+                window.__gubkinNavHook = true;
+                var notify = function() {
+                    if (window.AndroidBridge) {
+                        AndroidBridge.onUrlChanged(window.location.href);
+                    }
+                };
+                window.addEventListener('hashchange', notify);
+                var pushState = history.pushState;
+                history.pushState = function() {
+                    pushState.apply(history, arguments);
+                    notify();
+                };
+                var replaceState = history.replaceState;
+                history.replaceState = function() {
+                    replaceState.apply(history, arguments);
+                    notify();
+                };
+                notify();
+            })();
+        """.trimIndent()
+        webView.evaluateJavascript(js, null)
+    }
+
     private fun setupBackPress() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                if (isUnifiedViewActive) {
+                    isUnifiedViewActive = false
+                    syncTriggered = false
+                    webView.loadUrl(urls[currentTabIndex])
+                    return
+                }
                 if (webView.canGoBack()) {
                     webView.goBack()
                 } else {
@@ -210,6 +305,285 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
                 }
             }
         })
+    }
+
+    private fun isAutoSyncReady(url: String?): Boolean {
+        Log.d("ScheduleSync", "Checking URL: $url")
+        if (url.isNullOrBlank()) return false
+        
+        // Расширенное обнаружение: срабатывает при наличии любого ID выбора в URL
+        return url.contains("/schedule/") && 
+               (url.contains("/lessons") || url.contains("groups/") || url.contains("groupId=") ||
+                url.contains("teachers/") || url.contains("teacherId=") ||
+                url.contains("rooms/") || url.contains("roomId="))
+    }
+
+    private fun checkIfCaptchaPassed(url: String?) {
+        if (url == null || isUnifiedViewActive || syncTriggered) {
+            Log.d("ScheduleSync", "Skip check: url=$url, active=$isUnifiedViewActive, triggered=$syncTriggered")
+            return
+        }
+        
+        if (!isAutoSyncReady(url)) return
+
+        syncTriggered = true
+        Log.d("ScheduleSync", "Captcha likely passed, triggering sync...")
+        Toast.makeText(requireContext(), "🔄 Начинаю синхронизацию расписания...", Toast.LENGTH_LONG).show()
+        fetchUnifiedSchedule(url)
+    }
+
+    private fun fetchUnifiedSchedule(pageUrl: String? = null) {
+        Log.d("ScheduleSync", "fetchUnifiedSchedule started for URL: $pageUrl")
+        showSyncNotification("Синхронизация расписания...", "Загрузка данных для групп...")
+        
+        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+
+        val mainGroupId = prefs.getInt("key_group_id", -1)
+        val mainGroupName = prefs.getString("key_group_code", "Основная") ?: "Основная"
+
+        val recentJson = prefs.getString("key_recent_list_json", "[]") ?: "[]"
+        val recentList = mutableListOf<RecentSelection>()
+        try {
+            val arr = JSONArray(recentJson)
+            for (i in 0 until arr.length()) {
+                recentList.add(RecentSelection.fromJson(arr.getString(i)))
+            }
+        } catch (_: Exception) {}
+
+        val groupsToFetch = linkedMapOf<Int, String>()
+        ScheduleSyncHelper.parseGroupIdFromUrl(pageUrl)?.let { webGroupId ->
+            groupsToFetch[webGroupId] = "С сайта"
+        }
+        if (mainGroupId != -1) groupsToFetch.putIfAbsent(mainGroupId, mainGroupName)
+        recentList.filter { it.type == SelectionType.GROUP }
+            .take(5)
+            .forEach { groupsToFetch.putIfAbsent(it.id, it.name) }
+
+        if (groupsToFetch.isEmpty()) {
+            syncTriggered = false
+            Toast.makeText(requireContext(), "Сначала выберите группу в профиле", Toast.LENGTH_SHORT).show()
+            progressBar.visibility = View.GONE
+            swipeRefresh.isRefreshing = false
+            return
+        }
+
+        isUnifiedViewActive = true
+        progressBar.visibility = View.VISIBLE
+
+        lifecycleScope.launch {
+            val client = NetworkUtils.getUnsafeOkHttpClient()
+            CookieManager.getInstance().flush()
+            val cookie = CookieManager.getInstance().getCookie("https://lk.gubkin.ru")
+            
+            if (cookie.isNullOrBlank() || !cookie.contains("PHPSESSID")) {
+                Toast.makeText(requireContext(), "Сессия не найдена. Попробуйте обновить страницу в браузере", Toast.LENGTH_LONG).show()
+                isUnifiedViewActive = false
+                syncTriggered = false
+                progressBar.visibility = View.GONE
+                swipeRefresh.isRefreshing = false
+                return@launch
+            }
+
+            val userAgent = webView.settings.userAgentString
+
+            val results = withContext(Dispatchers.IO) {
+                // Принудительно очищаем кэш перед синхронизацией
+                if (syncTriggered) {
+                    groupsToFetch.keys.forEach { id ->
+                        val cal = Calendar.getInstance()
+                        repeat(2) {
+                            val weekKey = ScheduleSyncHelper.getWeekKey(cal)
+                            val file = File(requireContext().filesDir, "cache/week_${id}_$weekKey.json")
+                            if (file.exists()) {
+                                Log.d("ScheduleSync", "Deleting old cache: ${file.name}")
+                                file.delete()
+                            }
+                            cal.add(Calendar.WEEK_OF_YEAR, 1)
+                        }
+                    }
+                }
+
+                groupsToFetch.map { (id, name) ->
+                    Log.d("ScheduleSync", "Fetching for group: $name ($id)")
+                    async {
+                        val savedWeeks = ScheduleSyncHelper.syncGroupWeeks(
+                            requireContext().applicationContext,
+                            client,
+                            id,
+                            cookie,
+                            userAgent
+                        )
+                        val scheduleData = fetchScheduleForDisplay(client, id, cookie, userAgent)
+                        Log.d("ScheduleSync", "Group $name: saved $savedWeeks weeks, display data size: ${scheduleData.size}")
+                        SyncResult(name, id, savedWeeks, scheduleData)
+                    }
+                }.awaitAll()
+            }
+
+            val totalSaved = results.sumOf { it.savedWeeks }
+            Log.d("ScheduleSync", "Sync finished. Total saved weeks: $totalSaved")
+            
+            if (totalSaved > 0) {
+                ScheduleSyncHelper.bumpSyncVersion(requireContext())
+                showSyncNotification("Синхронизация завершена", "Загружено $totalSaved недель")
+                Toast.makeText(
+                    requireContext(),
+                    "✅ Успешно! Загружено $totalSaved недель расписания для ${results.size} групп",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                Log.e("ScheduleSync", "Sync failed: no weeks saved")
+                showSyncNotification("Ошибка синхронизации", "Не удалось загрузить данные")
+                Toast.makeText(
+                    requireContext(),
+                    "❌ Не удалось загрузить расписание. Проверьте капчу или интернет",
+                    Toast.LENGTH_LONG
+                ).show()
+                syncTriggered = false
+                isUnifiedViewActive = false
+                progressBar.visibility = View.GONE
+                swipeRefresh.isRefreshing = false
+                return@launch
+            }
+
+            val htmlResults = results.map { it.name to it.weeksForDisplay }
+            val html = generateUnifiedHtml(htmlResults)
+            webView.loadDataWithBaseURL("https://lk.gubkin.ru", html, "text/html", "UTF-8", null)
+            progressBar.visibility = View.GONE
+            swipeRefresh.isRefreshing = false
+        }
+    }
+
+    private data class SyncResult(
+        val name: String,
+        val groupId: Int,
+        val savedWeeks: Int,
+        val weeksForDisplay: List<JSONObject>
+    )
+
+    private fun fetchScheduleForDisplay(
+        client: okhttp3.OkHttpClient,
+        groupId: Int,
+        cookie: String?,
+        userAgent: String
+    ): List<JSONObject> {
+        val schedules = mutableListOf<JSONObject>()
+        val cal = Calendar.getInstance()
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+        
+        repeat(2) {
+            val data = ScheduleSyncHelper.fetchOneWeek(client, groupId, cal, cookie, userAgent)
+            if (data.optBoolean("state", false)) schedules.add(data)
+            cal.add(Calendar.WEEK_OF_YEAR, 1)
+        }
+        return schedules
+    }
+
+    private fun generateUnifiedHtml(results: List<Pair<String, List<JSONObject>>>): String {
+        val sb = StringBuilder()
+        val accentColor = try {
+            val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            prefs.getString("accent_color", "#4FC3F7") ?: "#4FC3F7"
+        } catch (e: Exception) { "#4FC3F7" }
+
+        val bgColor = "#121212"
+        val textColor = "#FFFFFF"
+        val subTextColor = "#AAAAAA"
+        
+        val now = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(Calendar.getInstance().time)
+
+        sb.append("""
+            <html>
+            <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body { background-color: $bgColor; color: $textColor; font-family: sans-serif; margin: 0; padding: 16px; padding-bottom: 80px; }
+                    .header-info { font-size: 12px; color: $subTextColor; margin-bottom: 16px; text-align: right; }
+                    .group-section { margin-bottom: 32px; border-left: 4px solid $accentColor; padding-left: 12px; }
+                    .group-title { font-size: 22px; font-weight: bold; margin-bottom: 12px; color: $accentColor; }
+                    .week-divider { font-size: 14px; font-weight: bold; color: $subTextColor; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
+                    .day-box { margin-bottom: 16px; background: #1E1E1E; padding: 12px; border-radius: 8px; }
+                    .day-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #333; padding-bottom: 4px; }
+                    .lesson { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #333; }
+                    .lesson:last-child { border-bottom: none; }
+                    .time { color: $accentColor; font-weight: bold; font-size: 14px; }
+                    .subject { font-size: 15px; margin-top: 2px; }
+                    .info { color: $subTextColor; font-size: 13px; margin-top: 2px; }
+                    .empty { color: #666; font-style: italic; font-size: 13px; }
+                    .btn-row { margin-bottom: 20px; display: flex; gap: 10px; }
+                    .btn { display: inline-block; padding: 10px 20px; background: $accentColor; color: #000; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; flex: 1; text-align: center; }
+                    .btn-secondary { background: #333; color: #FFF; }
+                </style>
+            </head>
+            <body>
+                <div class="header-info">Обновлено: $now</div>
+                <div class="btn-row">
+                    <a href="javascript:location.reload()" class="btn">Обновить</a>
+                    <a href="javascript:AndroidBridge.onUrlChanged('exit')" class="btn btn-secondary">В браузер</a>
+                </div>
+        """.trimIndent())
+
+        results.forEach { (groupName, weeks) ->
+            sb.append("<div class='group-section'>")
+            sb.append("<div class='group-title'>$groupName</div>")
+            
+            weeks.forEachIndexed { weekIdx, weekJson ->
+                sb.append("<div class='week-divider'>Неделя ${weekIdx + 1}</div>")
+                val moscow = weekJson.optJSONObject("rows")?.optJSONArray("organizations")?.let { orgs ->
+                    for (i in 0 until orgs.length()) {
+                        if (orgs.getJSONObject(i).optString("name") == "Москва") return@let orgs.getJSONObject(i)
+                    }
+                    null
+                }
+
+                if (moscow != null) {
+                    val lessons = moscow.optJSONArray("lessons")
+                    val timeChunks = moscow.optJSONArray("lessonsTimeChunks")
+                    
+                    if (lessons != null && lessons.length() > 0) {
+                        // Группируем по дням
+                        val days = mutableMapOf<Int, MutableList<JSONObject>>()
+                        for (i in 0 until lessons.length()) {
+                            val lesson = lessons.getJSONObject(i)
+                            val dayNum = lesson.optInt("weekDayNumber")
+                            days.getOrPut(dayNum) { mutableListOf() }.add(lesson)
+                        }
+
+                        val dayNames = listOf("Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье")
+                        for (dayIdx in 0..6) {
+                            val dayLessons = days[dayIdx] ?: continue
+                            sb.append("<div class='day-box'>")
+                            sb.append("<div class='day-title'>${dayNames[dayIdx]}</div>")
+                            
+                            dayLessons.sortedBy { it.optJSONArray("timeChunks")?.optInt(0) ?: 0 }.forEach { lesson ->
+                                val chunks = lesson.optJSONArray("timeChunks")
+                                val startTime = timeChunks?.optString(chunks?.optInt(0) ?: -1)?.split("-")?.getOrNull(0) ?: ""
+                                val endTime = timeChunks?.optString(chunks?.optInt((chunks?.length() ?: 1) - 1) ?: -1)?.split("-")?.getOrNull(1) ?: ""
+                                val subject = lesson.optJSONObject("course")?.optString("name") ?: "—"
+                                val type = lesson.optString("type", "")
+                                val room = lesson.optJSONArray("rooms")?.optJSONObject(0)?.optString("number") ?: ""
+                                val teacher = lesson.optJSONArray("teachers")?.optJSONObject(0)?.let { 
+                                    "${it.optString("lastName")} ${it.optString("firstName").take(1)}.${it.optString("patronymic").take(1)}."
+                                } ?: ""
+
+                                sb.append("<div class='lesson'>")
+                                sb.append("<div class='time'>$startTime - $endTime</div>")
+                                sb.append("<div class='subject'>$subject ($type)</div>")
+                                sb.append("<div class='info'>Ауд. $room | $teacher</div>")
+                                sb.append("</div>")
+                            }
+                            sb.append("</div>")
+                        }
+                    } else {
+                        sb.append("<div class='empty'>Занятий нет</div>")
+                    }
+                }
+            }
+            sb.append("</div>")
+        }
+
+        sb.append("</body></html>")
+        return sb.toString()
     }
 
     private fun setupCustomTabs() {
@@ -253,6 +627,8 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         tabs.forEachIndexed { i, tv ->
             tv.setTextColor(if (i == index) activeColor else ContextCompat.getColor(requireContext(), R.color.ui_text_sub))
         }
+        isUnifiedViewActive = false
+        syncTriggered = false
         webView.loadUrl(urls[index])
     }
 
@@ -271,5 +647,22 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     override fun onResume() {
         super.onResume()
         applyThemeColor()
+    }
+
+    private fun showSyncNotification(title: String, text: String) {
+        val context = context ?: return
+        try {
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val builder = NotificationCompat.Builder(context, "sync_channel")
+                .setSmallIcon(R.drawable.ic_notifications)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true)
+            
+            notificationManager.notify(1001, builder.build())
+        } catch (e: Exception) {
+            Log.e("ScheduleSync", "Failed to show notification", e)
+        }
     }
 }

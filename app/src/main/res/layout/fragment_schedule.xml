@@ -100,14 +100,6 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <!-- ЭФФЕКТ РАЗМЫТИЯ НА ГРАНИЦЕ (ЖИДКОЕ СТЕКЛО) -->
-    <View
-        android:id="@+id/view_boundary_blur"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:background="@drawable/bg_liquid_glass_gradient"
-        android:elevation="10dp" />
-
     <!-- 3. ЗАТЕМНЕНИЕ (Оверлей) -->
     <View
         android:id="@+id/view_overlay_dim"

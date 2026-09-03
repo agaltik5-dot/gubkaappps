@@ -7,6 +7,7 @@ import com.example.myapplication.LessonContent
 import com.example.myapplication.ScheduleItem
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
 import java.util.*
 
 class ScheduleRepository(private val context: Context) {
@@ -26,7 +27,7 @@ class ScheduleRepository(private val context: Context) {
     fun getGroupsForFaculty(facultyId: Int): List<Pair<String, Int>> {
         val fileName = "groups_cache/faculty_$facultyId.json"
         return try {
-            val jsonString = context.assets.open(fileName).bufferedReader().use { it.readText() }
+            val jsonString = readCacheText(fileName) ?: return emptyList()
             val array = JSONArray(jsonString)
             val groups = mutableListOf<Pair<String, Int>>()
             for (i in 0 until array.length()) {
@@ -40,27 +41,27 @@ class ScheduleRepository(private val context: Context) {
     }
 
     fun getScheduleForDate(groupId: Int, date: Calendar): List<ScheduleItem> {
-        val weekKey = getWeekKey(date)
+        val weekKey = ScheduleSyncHelper.getWeekKey(date)
         val fileName = "cache/week_${groupId}_$weekKey.json"
-        
+
         return try {
-            val jsonString = context.assets.open(fileName).bufferedReader().use { it.readText() }
+            val jsonString = readCacheText(fileName) ?: return emptyList()
             parseScheduleJson(jsonString, date)
         } catch (e: Exception) {
             emptyList()
         }
     }
 
-    private fun getWeekKey(date: Calendar): String {
-        val cal = date.clone() as Calendar
-        cal.firstDayOfWeek = Calendar.MONDAY
-        cal.minimalDaysInFirstWeek = 4
-        val year = cal.get(Calendar.YEAR)
-        val week = cal.get(Calendar.WEEK_OF_YEAR)
-        var isoYear = year
-        if (week == 1 && cal.get(Calendar.MONTH) == Calendar.DECEMBER) isoYear++
-        else if (week >= 52 && cal.get(Calendar.MONTH) == Calendar.JANUARY) isoYear--
-        return String.format("%d-W%02d", isoYear, week)
+    private fun readCacheText(relativePath: String): String? {
+        val internalFile = File(context.filesDir, relativePath)
+        if (internalFile.exists()) {
+            return internalFile.readText()
+        }
+        return try {
+            context.assets.open(relativePath).bufferedReader().use { it.readText() }
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun parseScheduleJson(jsonString: String, targetDate: Calendar): List<ScheduleItem> {

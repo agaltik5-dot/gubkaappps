@@ -12,8 +12,8 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:paddingHorizontal="16dp"
-        android:paddingTop="200dp"
-        android:paddingBottom="120dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="100dp"
         tools:listitem="@layout/item_lesson"
         android:visibility="visible" />
 

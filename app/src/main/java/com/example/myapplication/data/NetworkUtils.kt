@@ -24,10 +24,15 @@ object NetworkUtils {
         
         return OkHttpClient.Builder()
             .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36")
-                    .build()
-                chain.proceed(request)
+                val original = chain.request()
+                val requestBuilder = original.newBuilder()
+                
+                // Добавляем User-Agent только если его еще нет
+                if (original.header("User-Agent") == null) {
+                    requestBuilder.header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36")
+                }
+                
+                chain.proceed(requestBuilder.build())
             }
             .sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
             .hostnameVerifier { _, _ -> true }
