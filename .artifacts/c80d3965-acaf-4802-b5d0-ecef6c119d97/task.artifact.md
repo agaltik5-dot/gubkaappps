@@ -1,0 +1,9 @@
+- [ ] **UI Fix: Header & Arrow**
+    - [ ] Update `fragment_schedule.xml`: Position arrow at the end, remove inline list.
+- [ ] **Logic Fix: Floating Popup**
+    - [ ] Implement `showRecentItemsPopup()` in `ScheduleFragment.kt` using `PopupWindow`.
+    - [ ] Anchor the popup to the header card.
+    - [ ] Handle arrow rotation and dismissal.
+- [ ] **Verification**
+    - [ ] Verify the arrow is correctly aligned.
+    - [ ] Verify the list opens over the schedule content.

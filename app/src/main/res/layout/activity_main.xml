@@ -157,4 +157,12 @@
         </FrameLayout>
     </androidx.cardview.widget.CardView>
 
+    <!-- 3. ЭФФЕКТ РАЗМЫТИЯ СНИЗУ (ЖИДКОЕ СТЕКЛО) -->
+    <View
+        android:id="@+id/view_bottom_blur"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/bg_liquid_glass"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

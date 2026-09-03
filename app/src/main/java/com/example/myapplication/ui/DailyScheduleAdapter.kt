@@ -26,7 +26,18 @@ class DailyScheduleAdapter(
         init {
             recyclerView.layoutManager = LinearLayoutManager(view.context)
             recyclerView.setHasFixedSize(true)
-            recyclerView.isNestedScrollingEnabled = true
+            recyclerView.isNestedScrollingEnabled = false
+
+            // Настройка динамического размытия при скролле
+            recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    val thresholdY = 400f // Приблизительная высота хедера
+                    for (i in 0 until recyclerView.childCount) {
+                        val child = recyclerView.getChildAt(i)
+                        BlurUtils.updateViewBlur(child, thresholdY, 100f)
+                    }
+                }
+            })
         }
     }
 

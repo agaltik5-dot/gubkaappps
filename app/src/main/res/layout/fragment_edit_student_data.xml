@@ -224,7 +224,7 @@
                         app:hintEnabled="false">
 
                         <AutoCompleteTextView
-                            android:id="@+id/et_faculty"
+                            android:id="@+id/actv_faculty"
                             android:layout_width="match_parent"
                             android:layout_height="40dp"
                             android:background="@null"
@@ -289,7 +289,7 @@
                         app:hintEnabled="false">
 
                         <AutoCompleteTextView
-                            android:id="@+id/et_group"
+                            android:id="@+id/actv_group"
                             android:layout_width="match_parent"
                             android:layout_height="40dp"
                             android:background="@null"

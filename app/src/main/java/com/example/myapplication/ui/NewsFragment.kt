@@ -19,7 +19,6 @@ import com.example.myapplication.data.NewsItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.Request
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
@@ -78,44 +77,48 @@ class NewsFragment : Fragment(R.layout.fragment_news) {
         val newsItems = mutableListOf<NewsItem>()
         try {
             val url = "https://www.gubkin.ru/news/"
-
+            
+            // Используем OkHttp для загрузки страницы, так как он более надежен в обходе SSL
             val client = NetworkUtils.getUnsafeOkHttpClient()
-            val request = Request.Builder()
-                .url(url)
-                .build()
-
+            val request = okhttp3.Request.Builder().url(url).build()
             val response = client.newCall(request).execute()
-            val html = response.body?.string() ?: ""
-
-            // Парсим полученный HTML через Jsoup
+            val html = response.body?.string() ?: return@withContext emptyList<NewsItem>()
+            
             val doc: Document = Jsoup.parse(html, "https://www.gubkin.ru")
 
-            // Ищем блоки новостей
-            val elements: Elements = doc.select(".b-news-item")
+            // Пытаемся найти новости по разным селекторам
+            val elements: Elements = doc.select(".news_block, .b-news-item, .a-news-item")
 
             for (element in elements) {
-                val title = element.select(".b-news-item__title").text()
-                val date = element.select(".a-news-item__date").text()
+                val title = element.select(".news_name, .b-news-item__title, .a-news-item__title").text()
+                val date = element.select(".news_date, .a-news-item__date, .a-news-item__date").text()
                 
-                // Извлекаем ссылку на картинку (более надежный метод)
-                val pictureDiv = element.select(".b-news-item__picture")
+                // Извлекаем ссылку на картинку
+                val pictureDiv = element.select(".news_img, .b-news-item__picture, .a-news-item__picture")
                 val styleAttr = pictureDiv.attr("style")
-                val imageUrl = if (styleAttr.contains("url(")) {
+                var imageUrl = ""
+                if (styleAttr.contains("url(")) {
                     val path = styleAttr.substringAfter("url(").substringBefore(")")
                         .replace("'", "").replace("\"", "")
-                    if (path.startsWith("http")) path else "https://www.gubkin.ru$path"
-                } else ""
+                    imageUrl = if (path.startsWith("http")) path else "https://www.gubkin.ru$path"
+                } else {
+                    val imgTag = element.select("img")
+                    if (imgTag.isNotEmpty()) {
+                        val src = imgTag.attr("src")
+                        imageUrl = if (src.startsWith("http")) src else "https://www.gubkin.ru$src"
+                    }
+                }
 
                 // Ссылка на подробности
-                val detailLink = element.select("a.b-news-item__picture-container").attr("href")
-                val detailUrl = if (detailLink.startsWith("http")) detailLink else "https://www.gubkin.ru$detailLink"
-
+                val detailLink = element.select("a").attr("href")
                 if (title.isNotEmpty()) {
+                    val detailUrl = if (detailLink.startsWith("http")) detailLink else "https://www.gubkin.ru$detailLink"
                     newsItems.add(NewsItem(title, date, imageUrl, detailUrl))
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
+            android.util.Log.e("NewsFragment", "Error fetching news", e)
         }
         newsItems
     }

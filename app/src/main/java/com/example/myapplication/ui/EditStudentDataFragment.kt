@@ -15,6 +15,7 @@ import android.view.animation.PathInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.core.graphics.toColorInt
@@ -22,34 +23,24 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
 import com.example.myapplication.data.ScheduleRepository
-import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputLayout
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
-import java.util.TimeZone
 
 class EditStudentDataFragment : Fragment(R.layout.fragment_edit_student_data) {
 
     private lateinit var scheduleRepository: ScheduleRepository
     private var currentFacultyId: Int = 0
     private var currentGroups: List<Pair<String, Int>> = emptyList()
-
-    private var selectedFacultyName: String = ""
-    private var selectedGroupCode: String = ""
     private var selectedGroupId: Int = -1
+    private var selectedGroupCode: String = ""
+    private var selectedFacultyName: String = ""
 
     private lateinit var editContainer: ViewGroup
-
     private lateinit var actvFaculty: AutoCompleteTextView
     private lateinit var actvGroup: AutoCompleteTextView
-
     private lateinit var rvFaculty: RecyclerView
     private lateinit var rvGroup: RecyclerView
-
     private lateinit var wrapperFaculty: View
     private lateinit var wrapperGroup: View
-
     private lateinit var indicatorFaculty: View
     private lateinit var indicatorGroup: View
 
@@ -62,6 +53,9 @@ class EditStudentDataFragment : Fragment(R.layout.fragment_edit_student_data) {
         scheduleRepository = ScheduleRepository(requireContext())
         val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
+        // Скрываем нижнюю навигацию
+        activity?.findViewById<View>(R.id.card_nav)?.visibility = View.GONE
+
         editContainer = view.findViewById(R.id.edit_container)
 
         val etFirstName = view.findViewById<EditText>(R.id.et_first_name)
@@ -70,8 +64,8 @@ class EditStudentDataFragment : Fragment(R.layout.fragment_edit_student_data) {
         val etEmail = view.findViewById<EditText>(R.id.et_email)
         val etBirthDate = view.findViewById<EditText>(R.id.et_birth_date)
 
-        actvFaculty = view.findViewById(R.id.et_faculty)
-        actvGroup = view.findViewById(R.id.et_group)
+        actvFaculty = view.findViewById(R.id.actv_faculty)
+        actvGroup = view.findViewById(R.id.actv_group)
 
         rvFaculty = view.findViewById(R.id.rv_faculty_inline)
         rvGroup = view.findViewById(R.id.rv_group_inline)
@@ -88,79 +82,39 @@ class EditStudentDataFragment : Fragment(R.layout.fragment_edit_student_data) {
         etPhone.setText(prefs.getString("user_phone", "+7 999 000 0000"))
         etEmail.setText(prefs.getString("user_email", "ivan@univ.ru"))
         etBirthDate.setText(prefs.getString("user_birth_date", "27.03.2005"))
+        
+        selectedFacultyName = prefs.getString("user_faculty", "") ?: ""
+        selectedGroupCode = prefs.getString("user_group", "") ?: ""
+        selectedGroupId = prefs.getInt("key_group_id", -1)
+        
+        actvFaculty.setText(selectedFacultyName, false)
+        actvGroup.setText(selectedGroupCode, false)
 
-        // Выбор даты рождения через MaterialDatePicker
-        etBirthDate.setOnClickListener {
-            val datePicker = MaterialDatePicker.Builder.datePicker()
-                .setTitleText("Выберите дату рождения")
-                .build()
-
-            datePicker.addOnPositiveButtonClickListener { selectionMillis ->
-                val birthCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-                    timeInMillis = selectionMillis
-                }
-
-                val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-                dateFormat.timeZone = TimeZone.getTimeZone("UTC")
-                val formattedDate = dateFormat.format(birthCal.time)
-
-                etBirthDate.setText(formattedDate)
-            }
-
-            datePicker.show(parentFragmentManager, "BIRTH_DATE_PICKER")
-        }
-
-        // Инициализация кастомных выпадающих списков
         setupInlineDropdowns(view)
         setupScrollIndicators()
         applyThemeColor()
 
-        // Загрузка сохраненных значений
-        val facultyNames = scheduleRepository.FACULTIES.values.toList()
-        val savedFaculty = prefs.getString("user_faculty", facultyNames.firstOrNull()).orEmpty()
-
-        if (savedFaculty.isNotEmpty() && facultyNames.contains(savedFaculty)) {
-            actvFaculty.setText(savedFaculty, false)
-            selectedFacultyName = savedFaculty
-            currentFacultyId = scheduleRepository.FACULTIES.filterValues { it == savedFaculty }.keys.firstOrNull() ?: 0
-            updateGroupsDropdown()
-        }
-
-        val savedGroup = prefs.getString("user_group", "").orEmpty()
-        if (savedGroup.isNotEmpty()) {
-            actvGroup.setText(savedGroup, false)
-            val group = currentGroups.find { it.first == savedGroup }
-            if (group != null) {
-                selectedGroupCode = group.first
-                selectedGroupId = group.second
-            }
-        }
-
-        // Гарантируем закрытое состояние списка при открытии экрана
-        wrapperFaculty.visibility = View.GONE
-        wrapperGroup.visibility = View.GONE
-        resetArrow(view.findViewById(R.id.til_faculty))
-        resetArrow(view.findViewById(R.id.til_group))
-
-        // Кнопки навигации и сохранения
-        view.findViewById<View>(R.id.btn_back)?.setOnClickListener {
+        // Кнопка "Назад"
+        view.findViewById<ImageView>(R.id.btn_back)?.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
-        view.findViewById<View>(R.id.btn_save)?.setOnClickListener {
+        // Кнопка "Сохранить" (галочка)
+        view.findViewById<ImageView>(R.id.btn_save)?.setOnClickListener {
             prefs.edit {
-                putString("user_first_name", etFirstName.text.toString())
-                putString("user_last_name", etLastName.text.toString())
-                putString("user_phone", etPhone.text.toString())
-                putString("user_email", etEmail.text.toString())
-                putString("user_faculty", selectedFacultyName)
-                putString("user_group", selectedGroupCode)
+                putString("user_first_name", etFirstName.text.toString().trim())
+                putString("user_last_name", etLastName.text.toString().trim())
+                putString("user_phone", etPhone.text.toString().trim())
+                putString("user_email", etEmail.text.toString().trim())
+                putString("user_faculty", selectedFacultyName.trim())
+                putString("user_group", selectedGroupCode.trim())
                 putInt("key_group_id", selectedGroupId)
-                putString("key_group_code", selectedGroupCode)
-                putString("user_birth_date", etBirthDate.text.toString())
+                putString("key_group_code", selectedGroupCode.trim())
+                putString("user_birth_date", etBirthDate.text.toString().trim())
+                apply()
             }
 
-            // Отправляем сигнал обновлении в родительский фрагмент
+            // Отправляем сигнал об обновлении в родительский фрагмент
             parentFragmentManager.setFragmentResult("student_data_updated", Bundle())
 
             Toast.makeText(requireContext(), "Данные сохранены", Toast.LENGTH_SHORT).show()
@@ -256,6 +210,12 @@ class EditStudentDataFragment : Fragment(R.layout.fragment_edit_student_data) {
             }
             override fun afterTextChanged(s: Editable?) {}
         })
+        
+        // Initial group update if faculty is already selected
+        if (selectedFacultyName.isNotEmpty()) {
+            currentFacultyId = scheduleRepository.FACULTIES.filterValues { it == selectedFacultyName }.keys.firstOrNull() ?: 0
+            updateGroupsDropdown()
+        }
     }
 
     private fun setupScrollIndicators() {

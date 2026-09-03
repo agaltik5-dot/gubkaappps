@@ -28,6 +28,9 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import android.os.Build
 
 class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
 
@@ -71,6 +74,9 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
         setupMonthNavigation(view)
         setupViewPagers(view)
         
+        val boundaryBlur = view.findViewById<View>(R.id.view_boundary_blur)
+        applyBlurEffect(boundaryBlur, 100f)
+
         // Кнопка перехода к выбору группы в профиле
         view.findViewById<View>(R.id.btn_select_group_shortcut)?.setOnClickListener {
             val mainActivity = requireActivity() as? com.example.myapplication.MainActivity
@@ -435,5 +441,12 @@ class ScheduleFragment : Fragment(R.layout.fragment_schedule) {
     private fun getDayIndexForCalendar(cal: Calendar): Int {
         val day = cal.get(Calendar.DAY_OF_WEEK)
         return if (day == Calendar.SUNDAY) 6 else day - 2
+    }
+
+    private fun applyBlurEffect(view: View, radius: Float) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val blurEffect = RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.CLAMP)
+            view.setRenderEffect(blurEffect)
+        }
     }
 }

@@ -1,0 +1,7 @@
+- `[x]` Create `BlurUtils.kt` for dynamic RenderEffect application
+- `[x]` Update `DailyScheduleAdapter.kt` to apply blur on scroll
+- `[x]` Refine `fragment_schedule.xml`:
+    - Elevate header card and buttons (25dp-35dp)
+    - Clean up blur view overlays (expanded to 300dp)
+- `[x]` Update `item_day_page.xml` padding for better scroll feel
+- `[x]` Verify the "liquid" melting effect on cards
