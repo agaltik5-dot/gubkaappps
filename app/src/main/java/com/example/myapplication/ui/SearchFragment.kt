@@ -350,13 +350,11 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 
         syncTriggered = true
         Log.d("ScheduleSync", "Captcha likely passed, triggering sync...")
-        Toast.makeText(requireContext(), "🔄 Начинаю синхронизацию расписания...", Toast.LENGTH_LONG).show()
         fetchUnifiedSchedule(url)
     }
 
     private fun fetchUnifiedSchedule(pageUrl: String? = null) {
         Log.d("ScheduleSync", "fetchUnifiedSchedule started for URL: $pageUrl")
-        showSyncNotification("Синхронизация расписания...", "Загрузка данных для групп...")
         
         val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
@@ -447,20 +445,8 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             
             if (totalSaved > 0) {
                 ScheduleSyncHelper.bumpSyncVersion(requireContext())
-                showSyncNotification("Синхронизация завершена", "Загружено $totalSaved недель")
-                Toast.makeText(
-                    requireContext(),
-                    "✅ Успешно! Загружено $totalSaved недель расписания для ${results.size} групп",
-                    Toast.LENGTH_LONG
-                ).show()
             } else {
                 Log.e("ScheduleSync", "Sync failed: no weeks saved")
-                showSyncNotification("Ошибка синхронизации", "Не удалось загрузить данные")
-                Toast.makeText(
-                    requireContext(),
-                    "❌ Не удалось загрузить расписание. Проверьте капчу или интернет",
-                    Toast.LENGTH_LONG
-                ).show()
                 syncTriggered = false
                 isUnifiedViewActive = false
                 progressBar.visibility = View.GONE
@@ -682,22 +668,5 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     override fun onResume() {
         super.onResume()
         applyThemeColor()
-    }
-
-    private fun showSyncNotification(title: String, text: String) {
-        val context = context ?: return
-        try {
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val builder = NotificationCompat.Builder(context, "sync_channel")
-                .setSmallIcon(R.drawable.ic_notifications)
-                .setContentTitle(title)
-                .setContentText(text)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setAutoCancel(true)
-            
-            notificationManager.notify(1001, builder.build())
-        } catch (e: Exception) {
-            Log.e("ScheduleSync", "Failed to show notification", e)
-        }
     }
 }
