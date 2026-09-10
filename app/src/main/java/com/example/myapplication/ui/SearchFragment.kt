@@ -70,6 +70,8 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
                 if (url == "exit") {
                     isUnifiedViewActive = false
                     syncTriggered = false
+                    requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                        .edit().putBoolean("key_is_unified_active", false).apply()
                     webView.loadUrl(urls[currentTabIndex])
                 } else {
                     checkIfCaptchaPassed(url)
@@ -97,7 +99,25 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         setupBackPress()
         setupScrollSync()
 
-        if (savedInstanceState == null) {
+        val prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        isUnifiedViewActive = prefs.getBoolean("key_is_unified_active", false)
+
+        if (isUnifiedViewActive) {
+            loadUnifiedFromCache()
+        } else if (savedInstanceState == null) {
+            selectTab(0)
+        }
+    }
+
+    private fun loadUnifiedFromCache() {
+        val file = File(requireContext().filesDir, "unified_schedule_cache.html")
+        if (file.exists()) {
+            val html = file.readText()
+            webView.loadDataWithBaseURL("https://lk.gubkin.ru", html, "text/html", "UTF-8", null)
+            isUnifiedViewActive = true
+            syncTriggered = true // Prevent auto-triggering again immediately
+        } else {
+            isUnifiedViewActive = false
             selectTab(0)
         }
     }
@@ -294,6 +314,8 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
                 if (isUnifiedViewActive) {
                     isUnifiedViewActive = false
                     syncTriggered = false
+                    requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                        .edit().putBoolean("key_is_unified_active", false).apply()
                     webView.loadUrl(urls[currentTabIndex])
                     return
                 }
@@ -448,6 +470,17 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 
             val htmlResults = results.map { it.name to it.weeksForDisplay }
             val html = generateUnifiedHtml(htmlResults)
+            
+            // Сохраняем в кэш
+            try {
+                val file = File(requireContext().filesDir, "unified_schedule_cache.html")
+                file.writeText(html)
+                requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                    .edit().putBoolean("key_is_unified_active", true).apply()
+            } catch (e: Exception) {
+                Log.e("ScheduleSync", "Failed to cache HTML", e)
+            }
+
             webView.loadDataWithBaseURL("https://lk.gubkin.ru", html, "text/html", "UTF-8", null)
             progressBar.visibility = View.GONE
             swipeRefresh.isRefreshing = false
@@ -629,6 +662,8 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         }
         isUnifiedViewActive = false
         syncTriggered = false
+        requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            .edit().putBoolean("key_is_unified_active", false).apply()
         webView.loadUrl(urls[index])
     }
 

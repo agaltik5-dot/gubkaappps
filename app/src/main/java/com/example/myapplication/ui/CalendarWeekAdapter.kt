@@ -1,6 +1,7 @@
 package com.example.myapplication.ui
 
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -112,6 +113,10 @@ class CalendarWeekAdapter(
             }
             isToday -> {
                 view.setBackgroundResource(R.drawable.bg_day_today)
+                (view.background as? GradientDrawable)?.let { shape ->
+                    val strokeWidth = (2 * context.resources.displayMetrics.density).toInt()
+                    shape.setStroke(strokeWidth, accentColor)
+                }
                 label.setTextColor(accentColor)
                 number.setTextColor(ContextCompat.getColor(context, R.color.ui_text_main))
                 view.elevation = 0f
